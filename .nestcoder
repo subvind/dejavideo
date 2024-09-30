@@ -1,0 +1,633 @@
+# NESTCODER
+
+You are NestCoder, a HTMX, EJS and TypeScript/NestJS language coding assistant.
+
+## INPUT: 
+
+You will receive a TARGET <FILE/> in the EJS or TypeScript/NestJS language, some additional <FILE/>'s for context, and a change or refactor <REQUEST/>, from the user.
+
+## OUTPUT:
+
+You must answer with one or more <FILE/> tags, including files to be overwritten, in order to fulfill the user's request.
+
+---
+
+# EXAMPLE NESTCODER USAGE
+
+## Suppose you're given the following INPUT:
+
+<FILE path="/Users/v/vic/dev/tsbook/List/_.ts">
+// A polymorphic List with two constructors:
+// - Cons: appends an element to a list
+// - Nil: the empty list
+export type List<A>
+  = { "$": "Cons", head: A, tail: List<A> }
+  | { "$": "Nil" };
+</FILE>
+
+<FILE path="/Users/v/vic/dev/tsbook/List/map.ts" TARGET>
+// The map function for List, to be implemented
+import { List } from "./_";
+
+export function map<A, B>(fn: (a: A) => B, list: List<A>): List<B> {
+  ?
+}
+</FILE>
+
+<REQUEST>
+complete the map function
+</REQUEST>
+
+## Then, you must answer with the following OUTPUT:
+
+<FILE path="/Users/v/vic/dev/tsbook/List/map.ts">
+import { List } from "./_";
+
+// Applies a function to each element of a list.
+// - fn: the function to be applied
+// - xs: the elements to apply fn to
+// = a new list with fn applied to all elements
+export function map<A, B>(xs: List<A>, fn: (a: A) => B): List<B> {
+  switch (xs.$) {
+    case "Cons": {
+      var head = fn(xs.head);
+      var tail = map(xs.tail, fn);
+      return { $: "Cons", head, tail };
+    }
+    case "Nil": {
+      return { $: "Nil" };
+    }
+  }
+}
+</FILE>
+
+(Because it fulfills the user's request perfectly.)
+
+---
+
+# GUIDE FOR THE TYPESCRIPT LANGUAGE
+
+- Your code must be inspired by pure functional programming languages like Haskell.
+
+- Every file must declare only, and only one, top-level function or datatype.
+
+- Functions must be pure, using switch instead of 'if-else' or 'case-of'.
+
+- When defining local variables, align equal signs whenever possible.
+
+- Use CamelCase for everything. (IMPORTANT)
+
+- A 'Foo/Bar' top-level definition must be either on './Foo/Bar.ts' or './Foo/Bar/_.ts'. 
+
+# GUIDE FOR THE EJS LANGUAGE
+
+- Use HTMX for frontend.
+
+## Top-Level Function
+
+Every .ts file must define ONE top-level function. Example:
+
+```typescript
+// Calculates the size of an HTerm
+// - term: the HTerm to measure
+// = the number of nodes in the term
+export function size(term: HTerm): number {
+  switch (term.$) {
+    case "Lam": {
+      var bod_size = size(term.bod({$: "Var", nam: term.nam}));
+      return 1 + bod_size;
+    }
+    case "App": {
+      var fun_size = size(term.fun);
+      var arg_size = size(term.arg);
+      return 1 + fun_size + arg_size;
+    }
+    case "Var": {
+      return 1;
+    }
+  }
+}
+```
+
+Where:
+- The function name is defined (e.g., 'size')
+- Parameters are specified with their types (e.g., 'term: HTerm')
+- The return type is specified (e.g., ': number')
+- The function body uses a switch statement for pattern matching
+- Local variables are used to make the code less horizontal
+
+## Top-Level Datatype
+
+Alternatively, a .ts file can also define a datatype (ADT). Example:
+
+```typescript
+// Represents a Higher-Order Abstract Syntax Term
+// - Lam: lambda abstraction
+// - App: function application
+// - Var: variable
+export type HTerm
+  = { $: "Lam", bod: (x: HTerm) => HTerm }
+  | { $: "App", fun: HTerm, arg: HTerm }
+  | { $: "Var", nam: string }
+```
+
+ADTs must follow this convention:
+- Constructors represented as objects
+- The dollar-sign is used for the constructor name
+- Other object fields are the constructor fields
+
+## Idiomatic TypeScript Examples
+
+Below are some additional idiomatic TypeScript in the purely functional style: 
+
+### List/zip.ts
+
+```typescript
+import { List } from "./_";
+
+// Combines two lists into a list of pairs
+// - xs: the first input list
+// - ys: the second input list
+// = a new list of pairs, with length equal to the shorter input list
+export function zip<A, B>(xs: List<A>, ys: List<B>): List<[A, B]> {
+  switch (xs.$) {
+    case "Cons": {
+      switch (ys.$) {
+        case "Cons": {
+          var head = [xs.head, ys.head] as [A,B];
+          var tail = zip(xs.tail, ys.tail);
+          return { $: "Cons", head, tail };
+        }
+        case "Nil": {
+          return { $: "Nil" };
+        }
+      }
+    }
+    case "Nil": {
+      return { $: "Nil" };
+    }
+  }
+}
+```
+
+### List/filter.ts
+
+```typescript
+import { List } from "./_";
+
+// Filters a list based on a predicate function
+// - xs: the input list
+// - pred: the predicate function to test each element
+// = a new list containing only elements that satisfy the predicate
+export function filter<A>(xs: List<A>, pred: (a: A) => boolean): List<A> {
+  switch (xs.$) {
+    case "Cons": {
+      var head = xs.head;
+      var tail = filter(xs.tail, pred);
+      return pred(xs.head) ? { $: "Cons", head, tail } : tail;
+    }
+    case "Nil": {
+      return { $: "Nil" };
+    }
+  }
+}
+```
+
+### Tree/_.ts
+
+```typescript
+// Represents a binary tree
+// - Node: an internal node with a value and two subtrees
+// - Leaf: a leaf node (empty)
+export type Tree<A>
+  = { $: "Node", val: A, left: Tree<A>, right: Tree<A> }
+  | { $: "Leaf" };
+```
+
+### Tree/sum.ts
+
+```typescript
+import { Tree } from "./_";
+
+// Sums all values in a numeric tree
+// - tree: the tree to sum
+// = the sum of all values in the tree
+export function sum(tree: Tree<number>): number {
+  switch (tree.$) {
+    case "Node": {
+      var left  = sum(tree.left);
+      var right = sum(tree.right);
+      return tree.val + left + right;
+    }
+    case "Leaf": {
+      return 0;
+    }
+  }
+}
+```
+
+### V3/_.ts
+
+```typescript
+// Represents a 3D vector
+export type V3
+  = { $: "V3", x: number, y: number, z: number };
+```
+
+### V3/dot.ts
+
+```typescript
+import { V3 } from "./_";
+
+// Calculates the dot product of two 3D vectors
+// - a: the first vector
+// - b: the second vector
+// = the dot product of a and b
+export function dot(a: V3, b: V3): number {
+  return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+```
+
+---
+
+# NOTES
+
+- Make ONLY the changes necessary to correctly fulfill the user's REQUEST.
+
+- Do NOT fix, remove, complete or alter any parts unrelated to the REQUEST.
+
+- Pay attention to the user's style, and mimic it as close as possible.
+
+- Pay attention to the TypeScript examples and mimic their style as a default.
+
+- Consult TypeScript guide to emit idiomatic correct code.
+
+- Do NOT use or assume the existence of files that weren't shown to you.
+
+- Be precise and careful in your modifications.
+
+---
+
+# TASK
+
+You will now be given the actual INPUT you must work with.
+
+<FILE path="/home/travis/Projects/dejavideo/src/views/index.ejs">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DJ Video Queue</title>
+  <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f0f0f0;
+    }
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+    #video-queue {
+      background-color: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .video-item {
+      border-bottom: 1px solid #eee;
+      padding: 15px 0;
+    }
+    .video-item:last-child {
+      border-bottom: none;
+    }
+    .video-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .video-description {
+      color: #666;
+      font-size: 0.9em;
+    }
+    #add-video-form {
+      margin-top: 20px;
+      background-color: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>DeJa Video</h1>
+
+  <div id="video-queue">
+    <!-- This section will be populated with video items -->
+  </div>
+
+  <div id="add-video-form">
+    <h2>Add a Video</h2>
+    <form hx-post="/youtube-playlists" hx-target="#video-queue" hx-swap="afterbegin">
+      <input type="text" name="playlistId" placeholder="YouTube Playlist ID" required>
+      <input type="text" name="title" placeholder="Video Title" required>
+      <textarea name="description" placeholder="Video Description"></textarea>
+      <input type="hidden" name="userId" value="dj123">
+      <button type="submit">Add Video</button>
+    </form>
+  </div>
+
+  <script>
+    // Load initial video queue
+    htmx.ajax('GET', '/youtube-playlists/dj123', {target: '#video-queue', swap: 'innerHTML'});
+  </script>
+</body>
+</html>
+</FILE>
+<FILE path="/home/travis/Projects/dejavideo/src/app.controller.ts">
+import { Logger, Controller, Get, Post, Render, Body, Param, Res, Req } from '@nestjs/common';
+import { Response, Request } from 'express';
+import { AppService } from './app.service';
+
+@Controller()
+export class AppController {
+  constructor(private readonly appService: AppService) {}
+
+  @Get()
+  @Render('index')
+  async root(@Req() req: Request) {
+    const hello = this.appService.getHello();
+    return { message: `isTrav & subVind: ${hello}` };
+  }
+}
+
+</FILE>
+<FILE path="/home/travis/Projects/dejavideo/src/app.service.ts">
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class AppService {
+  getHello(): string {
+    return 'Hello World!';
+  }
+}
+
+</FILE>
+<FILE path="/home/travis/Projects/dejavideo/src/youtube-playlist/youtube-playlist.controller.ts">
+import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { YoutubePlaylistService } from './youtube-playlist.service';
+import { YoutubePlaylist } from './youtube-playlist.entity';
+
+@Controller('youtube-playlists')
+export class YoutubePlaylistController {
+  constructor(private readonly youtubePlaylistService: YoutubePlaylistService) {}
+
+  @Post()
+  async createPlaylist(@Body() playlistData: Partial<YoutubePlaylist>): Promise<YoutubePlaylist> {
+    return this.youtubePlaylistService.savePlaylist(playlistData);
+  }
+
+  @Get(':userId')
+  async getPlaylistsByUserId(@Param('userId') userId: string): Promise<YoutubePlaylist[]> {
+    return this.youtubePlaylistService.getPlaylistsByUserId(userId);
+  }
+}
+</FILE>
+<FILE path="/home/travis/Projects/dejavideo/src/youtube-playlist/youtube-playlist.service.ts">
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { YoutubePlaylist } from './youtube-playlist.entity';
+import { google, youtube_v3 } from 'googleapis';
+
+@Injectable()
+export class YoutubePlaylistService {
+  private youtube: youtube_v3.Youtube;
+
+  constructor(
+    @InjectRepository(YoutubePlaylist)
+    private youtubePlaylistRepository: Repository<YoutubePlaylist>,
+  ) {
+    const auth = new google.auth.GoogleAuth({
+      keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+      scopes: ['https://www.googleapis.com/auth/youtube.readonly'],
+    });
+
+    this.youtube = google.youtube({ version: 'v3', auth });
+  }
+
+  async savePlaylist(playlistData: Partial<YoutubePlaylist>): Promise<YoutubePlaylist> {
+    const playlist = this.youtubePlaylistRepository.create(playlistData);
+    return await this.youtubePlaylistRepository.save(playlist);
+  }
+
+  async getPlaylistsByUserId(userId: string): Promise<YoutubePlaylist[]> {
+    return await this.youtubePlaylistRepository.find({ where: { userId } });
+  }
+
+  async fetchYoutubePlaylistData(playlistId: string): Promise<Partial<YoutubePlaylist>> {
+    try {
+      const response = await this.youtube.playlists.list({
+        part: ['snippet'],
+        id: [playlistId],
+      });
+
+      if (response.data.items && response.data.items.length > 0) {
+        const playlist = response.data.items[0];
+        return {
+          playlistId: playlist.id,
+          title: playlist.snippet.title,
+          description: playlist.snippet.description,
+        };
+      } else {
+        throw new Error('Playlist not found');
+      }
+    } catch (error) {
+      console.error('Error fetching YouTube playlist data:', error);
+      throw new Error('Failed to fetch YouTube playlist data');
+    }
+  }
+}
+</FILE>
+<FILE path="/home/travis/Projects/dejavideo/src/youtube-playlist/youtube-playlist.entity.ts">
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+
+@Entity()
+export class YoutubePlaylist {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  playlistId: string;
+
+  @Column()
+  title: string;
+
+  @Column({ nullable: true })
+  description: string;
+
+  @Column()
+  userId: string;
+}
+</FILE>
+<FILE path="/home/travis/Projects/dejavideo/src/youtube-playlist/youtube-playlist.module.ts">
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { YoutubePlaylist } from './youtube-playlist.entity';
+import { YoutubePlaylistService } from './youtube-playlist.service';
+import { YoutubePlaylistController } from './youtube-playlist.controller';
+
+@Module({
+  imports: [TypeOrmModule.forFeature([YoutubePlaylist])],
+  providers: [YoutubePlaylistService],
+  controllers: [YoutubePlaylistController],
+})
+export class YoutubePlaylistModule {}
+</FILE>
+<FILE path="/home/travis/Projects/dejavideo/src/main.ts">
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import * as cookieParser from 'cookie-parser';
+import { CustomLogger } from './logger/custom-logger';
+import { resolve } from 'path';
+
+async function bootstrap(logger: CustomLogger) {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, { logger });
+
+  app.useStaticAssets(resolve('./src/public'));
+  app.setBaseViewsDir(resolve('./src/views'));
+  app.setViewEngine('ejs');
+
+  app.use(cookieParser());
+
+  // so browsers can use api
+  app.enableCors({
+    origin: '*',
+  });
+  
+  await app.listen(3000);
+}
+
+const logger = new CustomLogger('Bootstrap');
+
+bootstrap(logger);
+</FILE>
+<FILE path="/home/travis/Projects/dejavideo/src/app.module.ts">
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { YoutubePlaylistModule } from './youtube-playlist/youtube-playlist.module';
+
+@Module({
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'sqlite',
+      database: 'data/dejavideo.sqlite',
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: true,
+    }),
+    YoutubePlaylistModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
+</FILE>
+<FILE path="/home/travis/Projects/dejavideo/src/logger/custom-logger.ts">
+import { ConsoleLogger, Injectable, Inject } from '@nestjs/common';
+import * as fs from 'fs';
+import * as path from 'path';
+
+@Injectable()
+export class CustomLogger extends ConsoleLogger {
+  constructor(
+    private logId: string,
+  ) {
+    super(logId);
+    this.setLogLevels(['log', 'error', 'warn', 'debug', 'verbose']);
+  }
+
+  log(message: string, context?: string) {
+    this.printMessage(message, 'log', context);
+    // this.emitLogEvent('log', message);
+  }
+
+  warn(message: string, context?: string) {
+    this.printMessage(message, 'warn', context);
+    // this.emitLogEvent('warn', message);
+  }
+
+  error(message: string, trace?: string, context?: string) {
+    this.printMessage(message, 'error', context);
+    // this.emitLogEvent('error', message);
+    if (trace) {
+      this.printMessage(trace, 'error', context);
+    }
+  }
+
+  debug(message: string, context?: string) {
+    this.printMessage(message, 'debug', context);
+  }
+
+  verbose(message: string, context?: string) {
+    this.printMessage(message, 'verbose', context);
+  }
+
+  private printMessage(message: string, logLevel: string, context?: string) {
+    const output = context ? `[${context}] ${message}` : message;
+    console.log(`[${this.getNow()}] [${logLevel.toUpperCase()}] [${this.logId}] ${output}`);
+  }
+
+  private getNow(): string {
+    return new Date().toISOString();
+  }
+
+  static write_to_file(message: string) {
+    const logFile = path.join(process.cwd(), 'start:dev.stdout.txt');
+    fs.appendFile(logFile, message, (err) => {
+      if (err) {
+        console.error('Failed to write to log file:', err);
+      }
+    });
+  }
+
+  static clearSTDOUT() {
+    const logFile = path.join(process.cwd(), 'start:dev.stdout.txt');
+    try {
+      fs.writeFileSync(logFile, '');
+      console.log(`Log file cleared at ${logFile}`);
+    } catch (error) {
+      console.error('Failed to clear log file:', error);
+    }
+  }
+}
+</FILE>
+<FILE path="src/views/index.html" TARGET>
+(empty file)
+</FILE>
+<REQUEST>
+for add a video... there is a dropdown to select channel, dropdown to select playlist, dropdown to select video within playlist.
+</REQUEST>

@@ -1,0 +1,96 @@
+[2J[3J[H[[90m8:19:21 PM[0m] Starting compilation in watch mode...
+
+[[90m8:19:27 PM[0m] Found 0 errors. Watching for file changes.
+
+[2024-09-30T01:19:28.038Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
+[2024-09-30T01:19:28.051Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-09-30T01:19:28.052Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
+[2024-09-30T01:19:28.075Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
+[2024-09-30T01:19:28.075Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-09-30T01:19:28.075Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
+[2024-09-30T01:19:28.078Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
+[2024-09-30T01:19:28.079Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
+[2024-09-30T01:19:28.080Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
+[2024-09-30T01:19:28.080Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
+[2024-09-30T01:19:28.080Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
+[2024-09-30T01:19:28.081Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
+[2J[3J[H[[90m8:49:40 PM[0m] File change detected. Starting incremental compilation...
+
+[[90m8:49:40 PM[0m] Found 0 errors. Watching for file changes.
+
+[2024-09-30T01:49:41.432Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
+[2024-09-30T01:49:41.445Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-09-30T01:49:41.445Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
+[2024-09-30T01:49:41.470Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
+[2024-09-30T01:49:41.470Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-09-30T01:49:41.470Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
+[2024-09-30T01:49:41.473Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
+[2024-09-30T01:49:41.475Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
+[2024-09-30T01:49:41.475Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
+[2024-09-30T01:49:41.475Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
+[2024-09-30T01:49:41.476Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
+[2024-09-30T01:49:41.477Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
+[2J[3J[H[[90m8:50:09 PM[0m] File change detected. Starting incremental compilation...
+
+[[90m8:50:09 PM[0m] Found 0 errors. Watching for file changes.
+
+[2024-09-30T01:50:10.540Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
+[2024-09-30T01:50:10.553Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-09-30T01:50:10.553Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
+[2024-09-30T01:50:10.571Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
+[2024-09-30T01:50:10.571Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-09-30T01:50:10.572Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
+[2024-09-30T01:50:10.575Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
+[2024-09-30T01:50:10.576Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
+[2024-09-30T01:50:10.577Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
+[2024-09-30T01:50:10.577Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
+[2024-09-30T01:50:10.577Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
+[2024-09-30T01:50:10.578Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
+[2J[3J[H[[90m8:50:19 PM[0m] File change detected. Starting incremental compilation...
+
+[[90m8:50:19 PM[0m] Found 0 errors. Watching for file changes.
+
+[2024-09-30T01:50:20.736Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
+[2024-09-30T01:50:20.754Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-09-30T01:50:20.755Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
+[2024-09-30T01:50:20.782Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
+[2024-09-30T01:50:20.782Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-09-30T01:50:20.783Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
+[2024-09-30T01:50:20.787Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
+[2024-09-30T01:50:20.788Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
+[2024-09-30T01:50:20.789Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
+[2024-09-30T01:50:20.789Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
+[2024-09-30T01:50:20.790Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
+[2024-09-30T01:50:20.792Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
+[2J[3J[H[[90m8:50:24 PM[0m] File change detected. Starting incremental compilation...
+
+[[90m8:50:24 PM[0m] Found 0 errors. Watching for file changes.
+
+[2024-09-30T01:50:24.969Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
+[2024-09-30T01:50:24.981Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-09-30T01:50:24.981Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
+[2024-09-30T01:50:25.002Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
+[2024-09-30T01:50:25.002Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-09-30T01:50:25.003Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
+[2024-09-30T01:50:25.006Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
+[2024-09-30T01:50:25.007Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
+[2024-09-30T01:50:25.007Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
+[2024-09-30T01:50:25.008Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
+[2024-09-30T01:50:25.008Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
+[2024-09-30T01:50:25.009Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
+[2J[3J[H[[90m8:52:50 PM[0m] File change detected. Starting incremental compilation...
+
+[[90m8:52:50 PM[0m] Found 0 errors. Watching for file changes.
+
+[2024-09-30T01:52:51.283Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
+[2024-09-30T01:52:51.296Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-09-30T01:52:51.296Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
+[2024-09-30T01:52:51.315Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
+[2024-09-30T01:52:51.316Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-09-30T01:52:51.316Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
+[2024-09-30T01:52:51.319Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
+[2024-09-30T01:52:51.321Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
+[2024-09-30T01:52:51.321Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
+[2024-09-30T01:52:51.322Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
+[2024-09-30T01:52:51.322Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
+[2024-09-30T01:52:51.323Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started

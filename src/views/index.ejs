@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DJ Video Queue</title>
+  <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+  <%- include('style'); %> 
+</head>
+<body>
+  <h1>DeJa Video</h1>
+
+  <div id="video-queue">
+    <!-- This section will be populated with video items -->
+  </div>
+
+  <div id="add-video-form">
+    <h2>Add a Video</h2>
+    <form hx-post="/youtube-playlists" hx-target="#video-queue" hx-swap="afterbegin">
+      <select name="channelId" hx-get="/youtube-channels" hx-target="#playlist-select" hx-trigger="change">
+        <option value="">Select a Channel</option>
+      </select>
+      
+      <select id="playlist-select" name="playlistId" hx-get="/youtube-playlists" hx-target="#video-select" hx-trigger="change">
+        <option value="">Select a Playlist</option>
+      </select>
+      
+      <select id="video-select" name="videoId">
+        <option value="">Select a Video</option>
+      </select>
+      
+      <input type="hidden" name="userId" value="dj123">
+      <button type="submit">Add Video</button>
+    </form>
+  </div>
+
+  <script>
+    // Load initial video queue
+    htmx.ajax('GET', '/youtube-playlists/dj123', {target: '#video-queue', swap: 'innerHTML'});
+    
+    // Load initial channel list
+    htmx.ajax('GET', '/youtube-channels', {target: 'select[name="channelId"]', swap: 'innerHTML'});
+  </script>
+</body>
+</html>
