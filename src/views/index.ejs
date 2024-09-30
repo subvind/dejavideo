@@ -15,8 +15,8 @@
   </div>
 
   <div id="add-video-form">
-    <h2>Add a Video</h2>
-    <form hx-post="/youtube-playlists" hx-target="#video-queue" hx-swap="afterbegin">
+    <h2>Queue Video Event</h2>
+    <form hx-post="/video-timeline" hx-target="#video-queue" hx-swap="afterbegin">
       <select name="channelId" hx-get="/youtube-channels" hx-target="#playlist-select" hx-trigger="change">
         <option value="">Select a Channel</option>
       </select>
@@ -29,14 +29,17 @@
         <option value="">Select a Video</option>
       </select>
       
+      <label for="publishDateTime">Publish Date and Time:</label>
+      <input type="datetime-local" id="publishDateTime" name="publishDateTime" required>
+      
       <input type="hidden" name="userId" value="dj123">
-      <button type="submit">Add Video</button>
+      <button type="submit">Queue Video</button>
     </form>
   </div>
 
   <script>
     // Load initial video queue
-    htmx.ajax('GET', '/youtube-playlists/dj123', {target: '#video-queue', swap: 'innerHTML'});
+    htmx.ajax('GET', '/video-timeline/dj123', {target: '#video-queue', swap: 'innerHTML'});
     
     // Load initial channel list
     htmx.ajax('GET', '/youtube-channels', {target: 'select[name="channelId"]', swap: 'innerHTML'});
