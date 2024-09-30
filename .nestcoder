@@ -283,9 +283,14 @@ You will now be given the actual INPUT you must work with.
     background-color: #f0f0f0;
   }
   h1 {
+    margin: 0;
     color: #333;
     text-align: center;
   }
+  h2 {
+    margin: 0 0 0.5em;
+  }
+  #channel-list,
   #video-queue {
     background-color: white;
     border-radius: 8px;
@@ -307,6 +312,7 @@ You will now be given the actual INPUT you must work with.
     color: #666;
     font-size: 0.9em;
   }
+  #add-channel-form,
   #add-video-form {
     margin-top: 20px;
     background-color: white;
@@ -354,6 +360,106 @@ export class YoutubeChannelsController {
   }
 }
 </FILE>
+<FILE path="/home/travis/Projects/dejavideo/src/youtube-channels/youtube-channels.service.ts">
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { YoutubeChannel } from './youtube-channel.entity';
+import { google, youtube_v3 } from 'googleapis';
+
+@Injectable()
+export class YoutubeChannelsService {
+  private youtube: youtube_v3.Youtube;
+
+  constructor(
+    @InjectRepository(YoutubeChannel)
+    private youtubeChannelRepository: Repository<YoutubeChannel>,
+  ) {
+    const auth = new google.auth.GoogleAuth({
+      keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+      scopes: ['https://www.googleapis.com/auth/youtube.readonly'],
+    });
+
+    this.youtube = google.youtube({ version: 'v3', auth });
+  }
+
+  async saveChannel(channelData: Partial<YoutubeChannel>): Promise<YoutubeChannel> {
+    if (!channelData.title) {
+      if (channelData.channelId) {
+        try {
+          const fetchedData = await this.fetchYoutubeChannelData(channelData.channelId);
+          channelData.title = fetchedData.title;
+        } catch (error) {
+          if (error instanceof NotFoundException) {
+            throw new BadRequestException('Channel not found');
+          }
+          throw error;
+        }
+      } else {
+        throw new BadRequestException('Channel title or channelId is required');
+      }
+    }
+
+    if (!channelData.title) {
+      throw new BadRequestException('Failed to fetch channel title');
+    }
+
+    const channel = this.youtubeChannelRepository.create(channelData);
+    return await this.youtubeChannelRepository.save(channel);
+  }
+
+  async getChannelsByUserId(userId: string): Promise<YoutubeChannel[]> {
+    return await this.youtubeChannelRepository.find({ where: { userId } });
+  }
+
+  async fetchYoutubeChannelData(channelId: string): Promise<Partial<YoutubeChannel>> {
+    try {
+      const response = await this.youtube.channels.list({
+        part: ['snippet'],
+        id: [channelId],
+      });
+
+      if (response.data.items && response.data.items.length > 0) {
+        const channel = response.data.items[0];
+        return {
+          channelId: channel.id,
+          title: channel.snippet.title,
+          description: channel.snippet.description,
+        };
+      } else {
+        throw new NotFoundException('Channel not found');
+      }
+    } catch (error) {
+      console.error('Error fetching YouTube channel data:', error);
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new Error('Failed to fetch YouTube channel data');
+    }
+  }
+}
+</FILE>
+<FILE path="/home/travis/Projects/dejavideo/src/youtube-channels/youtube-channel.entity.ts">
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+
+@Entity()
+export class YoutubeChannel {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  channelId: string;
+
+  @Column()
+  title: string;
+
+  @Column({ nullable: true })
+  description: string;
+
+  @Column()
+  userId: string;
+}
+</FILE>
 <FILE path="/home/travis/Projects/dejavideo/src/youtube-playlist/youtube-playlist.controller.ts">
 import { Controller, Post, Body, Get, Param } from '@nestjs/common';
 import { YoutubePlaylistService } from './youtube-playlist.service';
@@ -374,6 +480,62 @@ export class YoutubePlaylistController {
   }
 }
 </FILE>
+<FILE path="/home/travis/Projects/dejavideo/src/youtube-playlist/youtube-playlist.service.ts">
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { YoutubePlaylist } from './youtube-playlist.entity';
+import { google, youtube_v3 } from 'googleapis';
+
+@Injectable()
+export class YoutubePlaylistService {
+  private youtube: youtube_v3.Youtube;
+
+  constructor(
+    @InjectRepository(YoutubePlaylist)
+    private youtubePlaylistRepository: Repository<YoutubePlaylist>,
+  ) {
+    const auth = new google.auth.GoogleAuth({
+      keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+      scopes: ['https://www.googleapis.com/auth/youtube.readonly'],
+    });
+
+    this.youtube = google.youtube({ version: 'v3', auth });
+  }
+
+  async savePlaylist(playlistData: Partial<YoutubePlaylist>): Promise<YoutubePlaylist> {
+    const playlist = this.youtubePlaylistRepository.create(playlistData);
+    return await this.youtubePlaylistRepository.save(playlist);
+  }
+
+  async getPlaylistsByUserId(userId: string): Promise<YoutubePlaylist[]> {
+    return await this.youtubePlaylistRepository.find({ where: { userId } });
+  }
+
+  async fetchYoutubePlaylistData(playlistId: string): Promise<Partial<YoutubePlaylist>> {
+    try {
+      const response = await this.youtube.playlists.list({
+        part: ['snippet'],
+        id: [playlistId],
+      });
+
+      if (response.data.items && response.data.items.length > 0) {
+        const playlist = response.data.items[0];
+        return {
+          playlistId: playlist.id,
+          title: playlist.snippet.title,
+          description: playlist.snippet.description,
+        };
+      } else {
+        throw new Error('Playlist not found');
+      }
+    } catch (error) {
+      console.error('Error fetching YouTube playlist data:', error);
+      throw new Error('Failed to fetch YouTube playlist data');
+    }
+  }
+}
+</FILE>
 <FILE path="/home/travis/Projects/dejavideo/src/youtube-videos/youtube-videos.controller.ts">
 import { Controller, Post, Body, Get, Param } from '@nestjs/common';
 import { YoutubeVideosService } from './youtube-videos.service';
@@ -391,6 +553,67 @@ export class YoutubeVideosController {
   @Get(':userId')
   async getVideosByUserId(@Param('userId') userId: string): Promise<YoutubeVideo[]> {
     return this.youtubeVideosService.getVideosByUserId(userId);
+  }
+}
+</FILE>
+<FILE path="/home/travis/Projects/dejavideo/src/youtube-videos/youtube-videos.service.ts">
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { YoutubeVideo } from './youtube-video.entity';
+import { google, youtube_v3 } from 'googleapis';
+
+@Injectable()
+export class YoutubeVideosService {
+  private youtube: youtube_v3.Youtube;
+
+  constructor(
+    @InjectRepository(YoutubeVideo)
+    private youtubeVideoRepository: Repository<YoutubeVideo>,
+  ) {
+    const auth = new google.auth.GoogleAuth({
+      keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+      scopes: ['https://www.googleapis.com/auth/youtube.readonly'],
+    });
+
+    this.youtube = google.youtube({ version: 'v3', auth });
+  }
+
+  async saveVideo(videoData: Partial<YoutubeVideo>): Promise<YoutubeVideo> {
+    const video = this.youtubeVideoRepository.create(videoData);
+    return await this.youtubeVideoRepository.save(video);
+  }
+
+  async getVideosByUserId(userId: string): Promise<YoutubeVideo[]> {
+    return await this.youtubeVideoRepository.find({ where: { userId } });
+  }
+
+  async getVideoById(videoId: string): Promise<YoutubeVideo> {
+    return await this.youtubeVideoRepository.findOne({ where: { videoId } });
+  }
+
+  async fetchYoutubeVideoData(videoId: string): Promise<Partial<YoutubeVideo>> {
+    try {
+      const response = await this.youtube.videos.list({
+        part: ['snippet'],
+        id: [videoId],
+      });
+
+      if (response.data.items && response.data.items.length > 0) {
+        const video = response.data.items[0];
+        return {
+          videoId: video.id,
+          title: video.snippet.title,
+          description: video.snippet.description,
+          channelId: video.snippet.channelId,
+        };
+      } else {
+        throw new Error('Video not found');
+      }
+    } catch (error) {
+      console.error('Error fetching YouTube video data:', error);
+      throw new Error('Failed to fetch YouTube video data');
+    }
   }
 }
 </FILE>
@@ -460,94 +683,6 @@ export class VideoTimelineService {
   }
 }
 </FILE>
-<FILE path="/home/travis/Projects/dejavideo/src/video-timeline/video-timeline-entry.entity.ts">
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { YoutubeVideo } from '../youtube-videos/youtube-video.entity';
-
-@Entity()
-export class VideoTimelineEntry {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @ManyToOne(() => YoutubeVideo)
-  video: YoutubeVideo;
-
-  @Column()
-  userId: string;
-
-  @Column()
-  publishDateTime: Date;
-}
-</FILE>
-<FILE path="/home/travis/Projects/dejavideo/src/youtube-channels/youtube-channel.entity.ts">
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-
-@Entity()
-export class YoutubeChannel {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
-  channelId: string;
-
-  @Column()
-  title: string;
-
-  @Column({ nullable: true })
-  description: string;
-
-  @Column()
-  userId: string;
-}
-</FILE>
-<FILE path="/home/travis/Projects/dejavideo/src/youtube-playlist/youtube-playlist.entity.ts">
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-
-@Entity()
-export class YoutubePlaylist {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
-  playlistId: string;
-
-  @Column()
-  title: string;
-
-  @Column({ nullable: true })
-  description: string;
-
-  @Column()
-  userId: string;
-}
-</FILE>
-<FILE path="/home/travis/Projects/dejavideo/src/youtube-videos/youtube-video.entity.ts">
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-
-@Entity()
-export class YoutubeVideo {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
-  videoId: string;
-
-  @Column()
-  title: string;
-
-  @Column({ nullable: true })
-  description: string;
-
-  @Column()
-  userId: string;
-
-  @Column()
-  channelId: string;
-
-  @Column({ nullable: true })
-  playlistId: string;
-}
-</FILE>
 <FILE path="/home/travis/Projects/dejavideo/src/app.module.ts">
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -583,6 +718,10 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import * as cookieParser from 'cookie-parser';
 import { CustomLogger } from './logger/custom-logger';
 import { resolve } from 'path';
+import * as dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config();
 
 async function bootstrap(logger: CustomLogger) {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, { logger });
@@ -675,258 +814,37 @@ export class CustomLogger extends ConsoleLogger {
 }
 </FILE>
 <FILE path="/home/travis/Projects/dejavideo/start:dev.stdout.txt">
-[2J[3J[H[[90m8:19:21 PM[0m] Starting compilation in watch mode...
+[2J[3J[H[[90m10:19:52 PM[0m] Starting compilation in watch mode...
 
-[[90m8:19:27 PM[0m] Found 0 errors. Watching for file changes.
+[[90m10:19:58 PM[0m] Found 0 errors. Watching for file changes.
 
-[2024-09-30T01:19:28.038Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
-[2024-09-30T01:19:28.051Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T01:19:28.052Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
-[2024-09-30T01:19:28.075Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
-[2024-09-30T01:19:28.075Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T01:19:28.075Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
-[2024-09-30T01:19:28.078Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
-[2024-09-30T01:19:28.079Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
-[2024-09-30T01:19:28.080Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
-[2024-09-30T01:19:28.080Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
-[2024-09-30T01:19:28.080Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
-[2024-09-30T01:19:28.081Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
-[2J[3J[H[[90m8:49:40 PM[0m] File change detected. Starting incremental compilation...
-
-[[90m8:49:40 PM[0m] Found 0 errors. Watching for file changes.
-
-[2024-09-30T01:49:41.432Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
-[2024-09-30T01:49:41.445Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T01:49:41.445Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
-[2024-09-30T01:49:41.470Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
-[2024-09-30T01:49:41.470Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T01:49:41.470Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
-[2024-09-30T01:49:41.473Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
-[2024-09-30T01:49:41.475Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
-[2024-09-30T01:49:41.475Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
-[2024-09-30T01:49:41.475Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
-[2024-09-30T01:49:41.476Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
-[2024-09-30T01:49:41.477Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
-[2J[3J[H[[90m8:50:09 PM[0m] File change detected. Starting incremental compilation...
-
-[[90m8:50:09 PM[0m] Found 0 errors. Watching for file changes.
-
-[2024-09-30T01:50:10.540Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
-[2024-09-30T01:50:10.553Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T01:50:10.553Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
-[2024-09-30T01:50:10.571Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
-[2024-09-30T01:50:10.571Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T01:50:10.572Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
-[2024-09-30T01:50:10.575Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
-[2024-09-30T01:50:10.576Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
-[2024-09-30T01:50:10.577Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
-[2024-09-30T01:50:10.577Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
-[2024-09-30T01:50:10.577Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
-[2024-09-30T01:50:10.578Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
-[2J[3J[H[[90m8:50:19 PM[0m] File change detected. Starting incremental compilation...
-
-[[90m8:50:19 PM[0m] Found 0 errors. Watching for file changes.
-
-[2024-09-30T01:50:20.736Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
-[2024-09-30T01:50:20.754Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T01:50:20.755Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
-[2024-09-30T01:50:20.782Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
-[2024-09-30T01:50:20.782Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T01:50:20.783Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
-[2024-09-30T01:50:20.787Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
-[2024-09-30T01:50:20.788Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
-[2024-09-30T01:50:20.789Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
-[2024-09-30T01:50:20.789Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
-[2024-09-30T01:50:20.790Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
-[2024-09-30T01:50:20.792Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
-[2J[3J[H[[90m8:50:24 PM[0m] File change detected. Starting incremental compilation...
-
-[[90m8:50:24 PM[0m] Found 0 errors. Watching for file changes.
-
-[2024-09-30T01:50:24.969Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
-[2024-09-30T01:50:24.981Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T01:50:24.981Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
-[2024-09-30T01:50:25.002Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
-[2024-09-30T01:50:25.002Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T01:50:25.003Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
-[2024-09-30T01:50:25.006Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
-[2024-09-30T01:50:25.007Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
-[2024-09-30T01:50:25.007Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
-[2024-09-30T01:50:25.008Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
-[2024-09-30T01:50:25.008Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
-[2024-09-30T01:50:25.009Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
-[2J[3J[H[[90m8:52:50 PM[0m] File change detected. Starting incremental compilation...
-
-[[90m8:52:50 PM[0m] Found 0 errors. Watching for file changes.
-
-[2024-09-30T01:52:51.283Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
-[2024-09-30T01:52:51.296Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T01:52:51.296Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
-[2024-09-30T01:52:51.315Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
-[2024-09-30T01:52:51.316Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T01:52:51.316Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
-[2024-09-30T01:52:51.319Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
-[2024-09-30T01:52:51.321Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
-[2024-09-30T01:52:51.321Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
-[2024-09-30T01:52:51.322Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
-[2024-09-30T01:52:51.322Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
-[2024-09-30T01:52:51.323Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
-[2J[3J[H[[90m9:05:14 PM[0m] File change detected. Starting incremental compilation...
-
-[[90m9:05:15 PM[0m] Found 0 errors. Watching for file changes.
-
-[2024-09-30T02:05:15.975Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
-[2024-09-30T02:05:15.984Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T02:05:15.984Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
-[2024-09-30T02:05:16.001Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
-[2024-09-30T02:05:16.001Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T02:05:16.001Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T02:05:16.002Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
-[2024-09-30T02:05:16.002Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeChannelsModule dependencies initialized
-[2024-09-30T02:05:16.004Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
-[2024-09-30T02:05:16.005Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
-[2024-09-30T02:05:16.005Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
-[2024-09-30T02:05:16.005Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
-[2024-09-30T02:05:16.006Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
-[2024-09-30T02:05:16.006Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeChannelsController {/youtube-channels}:
-[2024-09-30T02:05:16.006Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels, POST} route
-[2024-09-30T02:05:16.006Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels/:userId, GET} route
-[2024-09-30T02:05:16.007Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
-[2J[3J[H[[90m9:05:17 PM[0m] File change detected. Starting incremental compilation...
-
-[[90m9:05:17 PM[0m] Found 0 errors. Watching for file changes.
-
-[2024-09-30T02:05:18.377Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
-[2024-09-30T02:05:18.392Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T02:05:18.392Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
-[2024-09-30T02:05:18.412Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
-[2024-09-30T02:05:18.412Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T02:05:18.412Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T02:05:18.413Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
-[2024-09-30T02:05:18.413Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeChannelsModule dependencies initialized
-[2024-09-30T02:05:18.416Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
-[2024-09-30T02:05:18.418Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
-[2024-09-30T02:05:18.418Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
-[2024-09-30T02:05:18.419Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
-[2024-09-30T02:05:18.419Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
-[2024-09-30T02:05:18.419Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeChannelsController {/youtube-channels}:
-[2024-09-30T02:05:18.419Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels, POST} route
-[2024-09-30T02:05:18.420Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels/:userId, GET} route
-[2024-09-30T02:05:18.421Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
-[2J[3J[H[[90m9:26:44 PM[0m] File change detected. Starting incremental compilation...
-
-[[90m9:26:44 PM[0m] Found 0 errors. Watching for file changes.
-
-[2024-09-30T02:26:45.614Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
-[2024-09-30T02:26:45.629Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T02:26:45.629Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
-[2024-09-30T02:26:45.654Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
-[2024-09-30T02:26:45.655Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T02:26:45.655Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T02:26:45.655Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T02:26:45.655Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
-[2024-09-30T02:26:45.656Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeChannelsModule dependencies initialized
-[2024-09-30T02:26:45.656Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeVideosModule dependencies initialized
-[2024-09-30T02:26:45.659Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
-[2024-09-30T02:26:45.661Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
-[2024-09-30T02:26:45.661Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
-[2024-09-30T02:26:45.661Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
-[2024-09-30T02:26:45.661Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
-[2024-09-30T02:26:45.662Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeChannelsController {/youtube-channels}:
-[2024-09-30T02:26:45.662Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels, POST} route
-[2024-09-30T02:26:45.662Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels/:userId, GET} route
-[2024-09-30T02:26:45.662Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeVideosController {/youtube-videos}:
-[2024-09-30T02:26:45.662Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos, POST} route
-[2024-09-30T02:26:45.663Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos/:userId, GET} route
-[2024-09-30T02:26:45.664Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
-[2J[3J[H[[90m9:26:47 PM[0m] File change detected. Starting incremental compilation...
-
-[[90m9:26:47 PM[0m] Found 0 errors. Watching for file changes.
-
-[2024-09-30T02:26:48.033Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
-[2024-09-30T02:26:48.048Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T02:26:48.048Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
-[2024-09-30T02:26:48.068Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
-[2024-09-30T02:26:48.069Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T02:26:48.069Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T02:26:48.069Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T02:26:48.070Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
-[2024-09-30T02:26:48.070Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeChannelsModule dependencies initialized
-[2024-09-30T02:26:48.070Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeVideosModule dependencies initialized
-[2024-09-30T02:26:48.073Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
-[2024-09-30T02:26:48.075Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
-[2024-09-30T02:26:48.075Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
-[2024-09-30T02:26:48.075Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
-[2024-09-30T02:26:48.076Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
-[2024-09-30T02:26:48.076Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeChannelsController {/youtube-channels}:
-[2024-09-30T02:26:48.076Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels, POST} route
-[2024-09-30T02:26:48.076Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels/:userId, GET} route
-[2024-09-30T02:26:48.076Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeVideosController {/youtube-videos}:
-[2024-09-30T02:26:48.077Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos, POST} route
-[2024-09-30T02:26:48.077Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos/:userId, GET} route
-[2024-09-30T02:26:48.078Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
-[2J[3J[H[[90m9:30:53 PM[0m] File change detected. Starting incremental compilation...
-
-[[90m9:30:53 PM[0m] Found 0 errors. Watching for file changes.
-
-[2024-09-30T02:30:54.338Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
-[2024-09-30T02:30:54.352Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T02:30:54.352Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
-[2024-09-30T02:30:54.383Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
-[2024-09-30T02:30:54.383Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T02:30:54.383Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T02:30:54.383Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T02:30:54.383Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T02:30:54.384Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
-[2024-09-30T02:30:54.384Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeChannelsModule dependencies initialized
-[2024-09-30T02:30:54.384Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeVideosModule dependencies initialized
-[2024-09-30T02:30:54.384Z] [LOG] [Bootstrap] [InstanceLoader] VideoTimelineModule dependencies initialized
-[2024-09-30T02:30:54.387Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
-[2024-09-30T02:30:54.389Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
-[2024-09-30T02:30:54.389Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
-[2024-09-30T02:30:54.389Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
-[2024-09-30T02:30:54.389Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
-[2024-09-30T02:30:54.389Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeChannelsController {/youtube-channels}:
-[2024-09-30T02:30:54.390Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels, POST} route
-[2024-09-30T02:30:54.390Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels/:userId, GET} route
-[2024-09-30T02:30:54.390Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeVideosController {/youtube-videos}:
-[2024-09-30T02:30:54.390Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos, POST} route
-[2024-09-30T02:30:54.390Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos/:userId, GET} route
-[2024-09-30T02:30:54.390Z] [LOG] [Bootstrap] [RoutesResolver] VideoTimelineController {/video-timeline}:
-[2024-09-30T02:30:54.390Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/video-timeline, POST} route
-[2024-09-30T02:30:54.391Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/video-timeline/:userId, GET} route
-[2024-09-30T02:30:54.392Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
-[2J[3J[H[[90m9:30:55 PM[0m] File change detected. Starting incremental compilation...
-
-[[90m9:30:56 PM[0m] Found 0 errors. Watching for file changes.
-
-[2024-09-30T02:30:56.744Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
-[2024-09-30T02:30:56.759Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T02:30:56.759Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
-[2024-09-30T02:30:56.782Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
-[2024-09-30T02:30:56.782Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T02:30:56.782Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T02:30:56.782Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T02:30:56.782Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T02:30:56.783Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
-[2024-09-30T02:30:56.783Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeChannelsModule dependencies initialized
-[2024-09-30T02:30:56.783Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeVideosModule dependencies initialized
-[2024-09-30T02:30:56.783Z] [LOG] [Bootstrap] [InstanceLoader] VideoTimelineModule dependencies initialized
-[2024-09-30T02:30:56.787Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
-[2024-09-30T02:30:56.788Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
-[2024-09-30T02:30:56.788Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
-[2024-09-30T02:30:56.789Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
-[2024-09-30T02:30:56.789Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
-[2024-09-30T02:30:56.789Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeChannelsController {/youtube-channels}:
-[2024-09-30T02:30:56.789Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels, POST} route
-[2024-09-30T02:30:56.790Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels/:userId, GET} route
-[2024-09-30T02:30:56.790Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeVideosController {/youtube-videos}:
-[2024-09-30T02:30:56.790Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos, POST} route
-[2024-09-30T02:30:56.790Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos/:userId, GET} route
-[2024-09-30T02:30:56.790Z] [LOG] [Bootstrap] [RoutesResolver] VideoTimelineController {/video-timeline}:
-[2024-09-30T02:30:56.790Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/video-timeline, POST} route
-[2024-09-30T02:30:56.791Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/video-timeline/:userId, GET} route
-[2024-09-30T02:30:56.792Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
+[2024-09-30T03:19:59.359Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
+[2024-09-30T03:19:59.373Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-09-30T03:19:59.373Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
+[2024-09-30T03:19:59.397Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
+[2024-09-30T03:19:59.397Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-09-30T03:19:59.397Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-09-30T03:19:59.397Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-09-30T03:19:59.397Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-09-30T03:19:59.398Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
+[2024-09-30T03:19:59.398Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeChannelsModule dependencies initialized
+[2024-09-30T03:19:59.398Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeVideosModule dependencies initialized
+[2024-09-30T03:19:59.398Z] [LOG] [Bootstrap] [InstanceLoader] VideoTimelineModule dependencies initialized
+[2024-09-30T03:19:59.401Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
+[2024-09-30T03:19:59.402Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
+[2024-09-30T03:19:59.402Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
+[2024-09-30T03:19:59.403Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
+[2024-09-30T03:19:59.403Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
+[2024-09-30T03:19:59.403Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeChannelsController {/youtube-channels}:
+[2024-09-30T03:19:59.403Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels, POST} route
+[2024-09-30T03:19:59.403Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels/:userId, GET} route
+[2024-09-30T03:19:59.403Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeVideosController {/youtube-videos}:
+[2024-09-30T03:19:59.404Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos, POST} route
+[2024-09-30T03:19:59.404Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos/:userId, GET} route
+[2024-09-30T03:19:59.404Z] [LOG] [Bootstrap] [RoutesResolver] VideoTimelineController {/video-timeline}:
+[2024-09-30T03:19:59.404Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/video-timeline, POST} route
+[2024-09-30T03:19:59.404Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/video-timeline/:userId, GET} route
+[2024-09-30T03:19:59.406Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
 
 </FILE>
 <FILE path="src/views/index.ejs" TARGET>
@@ -942,14 +860,10 @@ export class CustomLogger extends ConsoleLogger {
 <body>
   <h1>DeJa Video</h1>
 
-  <div id="video-queue">
-    <!-- This section will be populated with video items -->
-  </div>
-
   <div id="add-video-form">
     <h2>Queue Video Event</h2>
-    <form hx-post="/youtube-playlists" hx-target="#video-queue" hx-swap="afterbegin">
-      <select name="channelId" hx-get="/youtube-channels" hx-target="#playlist-select" hx-trigger="change">
+    <form hx-post="/video-timeline" hx-target="#video-queue" hx-swap="afterbegin">
+      <select name="channelId" hx-get="/youtube-channels/dj123" hx-target="this" hx-trigger="load, click">
         <option value="">Select a Channel</option>
       </select>
       
@@ -968,17 +882,37 @@ export class CustomLogger extends ConsoleLogger {
       <button type="submit">Queue Video</button>
     </form>
   </div>
+  <br />
+  <div id="video-queue">
+    <!-- This section will be populated with video items -->
+  </div>
+
+  <div id="add-channel-form">
+    <h2>Add YouTube Channel</h2>
+    <form hx-post="/youtube-channels" hx-target="#channel-list" hx-swap="beforeend">
+      <input type="text" name="channelId" placeholder="YouTube Channel ID" required>
+      <input type="hidden" name="userId" value="dj123">
+      <button type="submit">Add Channel</button>
+    </form>
+  </div>
+  <br />
+  <div id="channel-list">
+    <!-- This section will be populated with added channels -->
+  </div>
 
   <script>
     // Load initial video queue
-    htmx.ajax('GET', '/youtube-playlists/dj123', {target: '#video-queue', swap: 'innerHTML'});
+    htmx.ajax('GET', '/video-timeline/dj123', {target: '#video-queue', swap: 'innerHTML'});
     
     // Load initial channel list
-    htmx.ajax('GET', '/youtube-channels', {target: 'select[name="channelId"]', swap: 'innerHTML'});
+    htmx.ajax('GET', '/youtube-channels/dj123', {target: 'select[name="channelId"]', swap: 'innerHTML'});
+
+    // Load initial added channels
+    htmx.ajax('GET', '/youtube-channels/dj123', {target: '#channel-list', swap: 'innerHTML'});
   </script>
 </body>
 </html>
 </FILE>
 <REQUEST>
-'Queue Video Event' should work with video-timeline
+there should be 2 channels showing up under select a channel
 </REQUEST>

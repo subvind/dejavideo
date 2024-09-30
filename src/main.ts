@@ -4,6 +4,10 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import * as cookieParser from 'cookie-parser';
 import { CustomLogger } from './logger/custom-logger';
 import { resolve } from 'path';
+import * as dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config();
 
 async function bootstrap(logger: CustomLogger) {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, { logger });
