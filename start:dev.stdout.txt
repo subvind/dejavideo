@@ -1,93 +1,32 @@
-[2J[3J[H[[90m10:19:52 PM[0m] Starting compilation in watch mode...
+[2J[3J[H[[90m3:36:54 PM[0m] Starting compilation in watch mode...
 
-[[90m10:19:58 PM[0m] Found 0 errors. Watching for file changes.
+[[90m3:37:00 PM[0m] Found 0 errors. Watching for file changes.
 
-[2024-09-30T03:19:59.359Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
-[2024-09-30T03:19:59.373Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T03:19:59.373Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
-[2024-09-30T03:19:59.397Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
-[2024-09-30T03:19:59.397Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T03:19:59.397Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T03:19:59.397Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T03:19:59.397Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T03:19:59.398Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
-[2024-09-30T03:19:59.398Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeChannelsModule dependencies initialized
-[2024-09-30T03:19:59.398Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeVideosModule dependencies initialized
-[2024-09-30T03:19:59.398Z] [LOG] [Bootstrap] [InstanceLoader] VideoTimelineModule dependencies initialized
-[2024-09-30T03:19:59.401Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
-[2024-09-30T03:19:59.402Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
-[2024-09-30T03:19:59.402Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
-[2024-09-30T03:19:59.403Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
-[2024-09-30T03:19:59.403Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
-[2024-09-30T03:19:59.403Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeChannelsController {/youtube-channels}:
-[2024-09-30T03:19:59.403Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels, POST} route
-[2024-09-30T03:19:59.403Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels/:userId, GET} route
-[2024-09-30T03:19:59.403Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeVideosController {/youtube-videos}:
-[2024-09-30T03:19:59.404Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos, POST} route
-[2024-09-30T03:19:59.404Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos/:userId, GET} route
-[2024-09-30T03:19:59.404Z] [LOG] [Bootstrap] [RoutesResolver] VideoTimelineController {/video-timeline}:
-[2024-09-30T03:19:59.404Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/video-timeline, POST} route
-[2024-09-30T03:19:59.404Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/video-timeline/:userId, GET} route
-[2024-09-30T03:19:59.406Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
-[2J[3J[H[[90m10:24:06 PM[0m] File change detected. Starting incremental compilation...
-
-[[90m10:24:06 PM[0m] Found 0 errors. Watching for file changes.
-
-[2024-09-30T03:24:07.071Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
-[2024-09-30T03:24:07.085Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T03:24:07.085Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
-[2024-09-30T03:24:07.109Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
-[2024-09-30T03:24:07.109Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T03:24:07.109Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T03:24:07.109Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T03:24:07.109Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T03:24:07.110Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
-[2024-09-30T03:24:07.110Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeChannelsModule dependencies initialized
-[2024-09-30T03:24:07.110Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeVideosModule dependencies initialized
-[2024-09-30T03:24:07.110Z] [LOG] [Bootstrap] [InstanceLoader] VideoTimelineModule dependencies initialized
-[2024-09-30T03:24:07.113Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
-[2024-09-30T03:24:07.115Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
-[2024-09-30T03:24:07.115Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
-[2024-09-30T03:24:07.115Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
-[2024-09-30T03:24:07.115Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
-[2024-09-30T03:24:07.116Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeChannelsController {/youtube-channels}:
-[2024-09-30T03:24:07.116Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels, POST} route
-[2024-09-30T03:24:07.116Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels/:userId, GET} route
-[2024-09-30T03:24:07.116Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeVideosController {/youtube-videos}:
-[2024-09-30T03:24:07.116Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos, POST} route
-[2024-09-30T03:24:07.117Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos/:userId, GET} route
-[2024-09-30T03:24:07.117Z] [LOG] [Bootstrap] [RoutesResolver] VideoTimelineController {/video-timeline}:
-[2024-09-30T03:24:07.117Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/video-timeline, POST} route
-[2024-09-30T03:24:07.117Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/video-timeline/:userId, GET} route
-[2024-09-30T03:24:07.119Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
-[2J[3J[H[[90m10:24:07 PM[0m] File change detected. Starting incremental compilation...
-
-[[90m10:24:07 PM[0m] Found 0 errors. Watching for file changes.
-
-[2024-09-30T03:24:08.327Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
-[2024-09-30T03:24:08.341Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T03:24:08.341Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
-[2024-09-30T03:24:08.364Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
-[2024-09-30T03:24:08.364Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T03:24:08.364Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T03:24:08.364Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T03:24:08.364Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T03:24:08.365Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
-[2024-09-30T03:24:08.365Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeChannelsModule dependencies initialized
-[2024-09-30T03:24:08.365Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeVideosModule dependencies initialized
-[2024-09-30T03:24:08.365Z] [LOG] [Bootstrap] [InstanceLoader] VideoTimelineModule dependencies initialized
-[2024-09-30T03:24:08.368Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
-[2024-09-30T03:24:08.369Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
-[2024-09-30T03:24:08.370Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
-[2024-09-30T03:24:08.370Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
-[2024-09-30T03:24:08.370Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
-[2024-09-30T03:24:08.370Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeChannelsController {/youtube-channels}:
-[2024-09-30T03:24:08.370Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels, POST} route
-[2024-09-30T03:24:08.371Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels/:userId, GET} route
-[2024-09-30T03:24:08.371Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeVideosController {/youtube-videos}:
-[2024-09-30T03:24:08.371Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos, POST} route
-[2024-09-30T03:24:08.371Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos/:userId, GET} route
-[2024-09-30T03:24:08.371Z] [LOG] [Bootstrap] [RoutesResolver] VideoTimelineController {/video-timeline}:
-[2024-09-30T03:24:08.371Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/video-timeline, POST} route
-[2024-09-30T03:24:08.372Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/video-timeline/:userId, GET} route
-[2024-09-30T03:24:08.374Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
+[2024-10-09T20:37:01.990Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
+[2024-10-09T20:37:02.007Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-10-09T20:37:02.007Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
+[2024-10-09T20:37:02.033Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
+[2024-10-09T20:37:02.033Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-10-09T20:37:02.033Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-10-09T20:37:02.033Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-10-09T20:37:02.033Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-10-09T20:37:02.034Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
+[2024-10-09T20:37:02.034Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeChannelsModule dependencies initialized
+[2024-10-09T20:37:02.034Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeVideosModule dependencies initialized
+[2024-10-09T20:37:02.034Z] [LOG] [Bootstrap] [InstanceLoader] VideoTimelineModule dependencies initialized
+[2024-10-09T20:37:02.038Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
+[2024-10-09T20:37:02.039Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
+[2024-10-09T20:37:02.039Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
+[2024-10-09T20:37:02.040Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
+[2024-10-09T20:37:02.040Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
+[2024-10-09T20:37:02.040Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeChannelsController {/youtube-channels}:
+[2024-10-09T20:37:02.040Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels, POST} route
+[2024-10-09T20:37:02.040Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels/options/:userId, GET} route
+[2024-10-09T20:37:02.040Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels/list/:userId, GET} route
+[2024-10-09T20:37:02.040Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeVideosController {/youtube-videos}:
+[2024-10-09T20:37:02.041Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos, POST} route
+[2024-10-09T20:37:02.041Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos/:userId, GET} route
+[2024-10-09T20:37:02.041Z] [LOG] [Bootstrap] [RoutesResolver] VideoTimelineController {/video-timeline}:
+[2024-10-09T20:37:02.041Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/video-timeline, POST} route
+[2024-10-09T20:37:02.041Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/video-timeline/:userId, GET} route
+[2024-10-09T20:37:02.043Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started

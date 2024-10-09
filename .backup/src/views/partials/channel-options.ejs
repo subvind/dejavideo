@@ -1,0 +1,4 @@
+<option value="">Select a Channel</option>
+<% channels.forEach(function(channel) { %>
+  <option value="<%= channel.channelId %>"><%= channel.title %></option>
+<% }); %>

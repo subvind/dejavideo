@@ -13,8 +13,8 @@
   <div id="add-video-form">
     <h2>Queue Video Event</h2>
     <form hx-post="/video-timeline" hx-target="#video-queue" hx-swap="afterbegin">
-      <select name="channelId" hx-get="/youtube-channels/dj123" hx-target="this" hx-trigger="load, click">
-        <option value="">Select a Channel</option>
+      <select name="channelId" hx-get="/youtube-channels/dj123" hx-target="this" hx-trigger="load" hx-swap="innerHTML">
+        <%- include('partials/channel-options', { channels: [] }); %>
       </select>
       
       <select id="playlist-select" name="playlistId" hx-get="/youtube-playlists" hx-target="#video-select" hx-trigger="change">

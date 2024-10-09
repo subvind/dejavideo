@@ -13,7 +13,7 @@
   <div id="add-video-form">
     <h2>Queue Video Event</h2>
     <form hx-post="/video-timeline" hx-target="#video-queue" hx-swap="afterbegin">
-      <select name="channelId" hx-get="/youtube-channels/dj123" hx-target="this" hx-trigger="load" hx-swap="innerHTML">
+      <select name="channelId" hx-get="/youtube-channels/options/dj123" hx-target="this" hx-trigger="load" hx-swap="innerHTML">
         <%- include('partials/channel-options', { channels: [] }); %>
       </select>
       
@@ -47,7 +47,7 @@
   </div>
   <br />
   <div id="channel-list">
-    <!-- This section will be populated with added channels -->
+    <%- include('partials/channel-list', { channels: [] }); %>
   </div>
 
   <script>
@@ -55,10 +55,10 @@
     htmx.ajax('GET', '/video-timeline/dj123', {target: '#video-queue', swap: 'innerHTML'});
     
     // Load initial channel list
-    htmx.ajax('GET', '/youtube-channels/dj123', {target: 'select[name="channelId"]', swap: 'innerHTML'});
+    htmx.ajax('GET', '/youtube-channels/options/dj123', {target: 'select[name="channelId"]', swap: 'innerHTML'});
 
     // Load initial added channels
-    htmx.ajax('GET', '/youtube-channels/dj123', {target: '#channel-list', swap: 'innerHTML'});
+    htmx.ajax('GET', '/youtube-channels/list/dj123', {target: '#channel-list', swap: 'innerHTML'});
   </script>
 </body>
 </html>

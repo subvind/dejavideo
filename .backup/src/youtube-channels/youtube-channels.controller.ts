@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Render } from '@nestjs/common';
 import { YoutubeChannelsService } from './youtube-channels.service';
 import { YoutubeChannel } from './youtube-channel.entity';
 
@@ -12,7 +12,9 @@ export class YoutubeChannelsController {
   }
 
   @Get(':userId')
-  async getChannelsByUserId(@Param('userId') userId: string): Promise<YoutubeChannel[]> {
-    return this.youtubeChannelsService.getChannelsByUserId(userId);
+  @Render('partials/channel-options')
+  async getChannelsByUserId(@Param('userId') userId: string): Promise<{ channels: YoutubeChannel[] }> {
+    const channels = await this.youtubeChannelsService.getChannelsByUserId(userId);
+    return { channels };
   }
 }

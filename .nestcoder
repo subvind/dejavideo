@@ -272,94 +272,6 @@ export function dot(a: V3, b: V3): number {
 
 You will now be given the actual INPUT you must work with.
 
-<FILE path="/home/travis/Projects/dejavideo/src/views/style.ejs">
-
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f0f0f0;
-  }
-  h1 {
-    margin: 0;
-    color: #333;
-    text-align: center;
-  }
-  h2 {
-    margin: 0 0 0.5em;
-  }
-  #channel-list,
-  #video-queue {
-    background-color: white;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
-  .video-item {
-    border-bottom: 1px solid #eee;
-    padding: 15px 0;
-  }
-  .video-item:last-child {
-    border-bottom: none;
-  }
-  .video-title {
-    font-weight: bold;
-    margin-bottom: 5px;
-  }
-  .video-description {
-    color: #666;
-    font-size: 0.9em;
-  }
-  #add-channel-form,
-  #add-video-form {
-    margin-top: 20px;
-    background-color: white;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
-  select, input, textarea {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-  button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  button:hover {
-    background-color: #45a049;
-  }
-</style>
-</FILE>
-<FILE path="/home/travis/Projects/dejavideo/src/youtube-channels/youtube-channels.controller.ts">
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
-import { YoutubeChannelsService } from './youtube-channels.service';
-import { YoutubeChannel } from './youtube-channel.entity';
-
-@Controller('youtube-channels')
-export class YoutubeChannelsController {
-  constructor(private readonly youtubeChannelsService: YoutubeChannelsService) {}
-
-  @Post()
-  async createChannel(@Body() channelData: Partial<YoutubeChannel>): Promise<YoutubeChannel> {
-    return this.youtubeChannelsService.saveChannel(channelData);
-  }
-
-  @Get(':userId')
-  async getChannelsByUserId(@Param('userId') userId: string): Promise<YoutubeChannel[]> {
-    return this.youtubeChannelsService.getChannelsByUserId(userId);
-  }
-}
-</FILE>
 <FILE path="/home/travis/Projects/dejavideo/src/youtube-channels/youtube-channels.service.ts">
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -460,228 +372,34 @@ export class YoutubeChannel {
   userId: string;
 }
 </FILE>
-<FILE path="/home/travis/Projects/dejavideo/src/youtube-playlist/youtube-playlist.controller.ts">
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
-import { YoutubePlaylistService } from './youtube-playlist.service';
-import { YoutubePlaylist } from './youtube-playlist.entity';
+<FILE path="/home/travis/Projects/dejavideo/src/youtube-channels/youtube-channels.module.ts">
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { YoutubeChannel } from './youtube-channel.entity';
+import { YoutubeChannelsService } from './youtube-channels.service';
+import { YoutubeChannelsController } from './youtube-channels.controller';
 
-@Controller('youtube-playlists')
-export class YoutubePlaylistController {
-  constructor(private readonly youtubePlaylistService: YoutubePlaylistService) {}
-
-  @Post()
-  async createPlaylist(@Body() playlistData: Partial<YoutubePlaylist>): Promise<YoutubePlaylist> {
-    return this.youtubePlaylistService.savePlaylist(playlistData);
-  }
-
-  @Get(':userId')
-  async getPlaylistsByUserId(@Param('userId') userId: string): Promise<YoutubePlaylist[]> {
-    return this.youtubePlaylistService.getPlaylistsByUserId(userId);
-  }
-}
+@Module({
+  imports: [TypeOrmModule.forFeature([YoutubeChannel])],
+  providers: [YoutubeChannelsService],
+  controllers: [YoutubeChannelsController],
+  exports: [YoutubeChannelsService],
+})
+export class YoutubeChannelsModule {}
 </FILE>
-<FILE path="/home/travis/Projects/dejavideo/src/youtube-playlist/youtube-playlist.service.ts">
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { YoutubePlaylist } from './youtube-playlist.entity';
-import { google, youtube_v3 } from 'googleapis';
-
-@Injectable()
-export class YoutubePlaylistService {
-  private youtube: youtube_v3.Youtube;
-
-  constructor(
-    @InjectRepository(YoutubePlaylist)
-    private youtubePlaylistRepository: Repository<YoutubePlaylist>,
-  ) {
-    const auth = new google.auth.GoogleAuth({
-      keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
-      scopes: ['https://www.googleapis.com/auth/youtube.readonly'],
-    });
-
-    this.youtube = google.youtube({ version: 'v3', auth });
-  }
-
-  async savePlaylist(playlistData: Partial<YoutubePlaylist>): Promise<YoutubePlaylist> {
-    const playlist = this.youtubePlaylistRepository.create(playlistData);
-    return await this.youtubePlaylistRepository.save(playlist);
-  }
-
-  async getPlaylistsByUserId(userId: string): Promise<YoutubePlaylist[]> {
-    return await this.youtubePlaylistRepository.find({ where: { userId } });
-  }
-
-  async fetchYoutubePlaylistData(playlistId: string): Promise<Partial<YoutubePlaylist>> {
-    try {
-      const response = await this.youtube.playlists.list({
-        part: ['snippet'],
-        id: [playlistId],
-      });
-
-      if (response.data.items && response.data.items.length > 0) {
-        const playlist = response.data.items[0];
-        return {
-          playlistId: playlist.id,
-          title: playlist.snippet.title,
-          description: playlist.snippet.description,
-        };
-      } else {
-        throw new Error('Playlist not found');
-      }
-    } catch (error) {
-      console.error('Error fetching YouTube playlist data:', error);
-      throw new Error('Failed to fetch YouTube playlist data');
-    }
-  }
-}
+<FILE path="/home/travis/Projects/dejavideo/src/views/partials/channel-options.ejs">
+<option value="">Select a Channel</option>
+<% channels.forEach(function(channel) { %>
+  <option value="<%= channel.channelId %>"><%= channel.title %></option>
+<% }); %>
 </FILE>
-<FILE path="/home/travis/Projects/dejavideo/src/youtube-videos/youtube-videos.controller.ts">
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
-import { YoutubeVideosService } from './youtube-videos.service';
-import { YoutubeVideo } from './youtube-video.entity';
-
-@Controller('youtube-videos')
-export class YoutubeVideosController {
-  constructor(private readonly youtubeVideosService: YoutubeVideosService) {}
-
-  @Post()
-  async createVideo(@Body() videoData: Partial<YoutubeVideo>): Promise<YoutubeVideo> {
-    return this.youtubeVideosService.saveVideo(videoData);
-  }
-
-  @Get(':userId')
-  async getVideosByUserId(@Param('userId') userId: string): Promise<YoutubeVideo[]> {
-    return this.youtubeVideosService.getVideosByUserId(userId);
-  }
-}
-</FILE>
-<FILE path="/home/travis/Projects/dejavideo/src/youtube-videos/youtube-videos.service.ts">
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { YoutubeVideo } from './youtube-video.entity';
-import { google, youtube_v3 } from 'googleapis';
-
-@Injectable()
-export class YoutubeVideosService {
-  private youtube: youtube_v3.Youtube;
-
-  constructor(
-    @InjectRepository(YoutubeVideo)
-    private youtubeVideoRepository: Repository<YoutubeVideo>,
-  ) {
-    const auth = new google.auth.GoogleAuth({
-      keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
-      scopes: ['https://www.googleapis.com/auth/youtube.readonly'],
-    });
-
-    this.youtube = google.youtube({ version: 'v3', auth });
-  }
-
-  async saveVideo(videoData: Partial<YoutubeVideo>): Promise<YoutubeVideo> {
-    const video = this.youtubeVideoRepository.create(videoData);
-    return await this.youtubeVideoRepository.save(video);
-  }
-
-  async getVideosByUserId(userId: string): Promise<YoutubeVideo[]> {
-    return await this.youtubeVideoRepository.find({ where: { userId } });
-  }
-
-  async getVideoById(videoId: string): Promise<YoutubeVideo> {
-    return await this.youtubeVideoRepository.findOne({ where: { videoId } });
-  }
-
-  async fetchYoutubeVideoData(videoId: string): Promise<Partial<YoutubeVideo>> {
-    try {
-      const response = await this.youtube.videos.list({
-        part: ['snippet'],
-        id: [videoId],
-      });
-
-      if (response.data.items && response.data.items.length > 0) {
-        const video = response.data.items[0];
-        return {
-          videoId: video.id,
-          title: video.snippet.title,
-          description: video.snippet.description,
-          channelId: video.snippet.channelId,
-        };
-      } else {
-        throw new Error('Video not found');
-      }
-    } catch (error) {
-      console.error('Error fetching YouTube video data:', error);
-      throw new Error('Failed to fetch YouTube video data');
-    }
-  }
-}
-</FILE>
-<FILE path="/home/travis/Projects/dejavideo/src/video-timeline/video-timeline.controller.ts">
-import { Controller, Post, Get, Body, Param } from '@nestjs/common';
-import { VideoTimelineService } from './video-timeline.service';
-import { VideoTimelineEntry } from './video-timeline-entry.entity';
-
-@Controller('video-timeline')
-export class VideoTimelineController {
-  constructor(private videoTimelineService: VideoTimelineService) {}
-
-  @Post()
-  async addVideoToTimeline(
-    @Body() body: { videoId: string; userId: string; publishDateTime: string },
-  ): Promise<VideoTimelineEntry> {
-    const { videoId, userId, publishDateTime } = body;
-    return await this.videoTimelineService.addVideoToTimeline(
-      videoId,
-      userId,
-      new Date(publishDateTime),
-    );
-  }
-
-  @Get(':userId')
-  async getTimelineForUser(@Param('userId') userId: string): Promise<VideoTimelineEntry[]> {
-    return await this.videoTimelineService.getTimelineForUser(userId);
-  }
-}
-</FILE>
-<FILE path="/home/travis/Projects/dejavideo/src/video-timeline/video-timeline.service.ts">
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { VideoTimelineEntry } from './video-timeline-entry.entity';
-import { YoutubeVideosService } from '../youtube-videos/youtube-videos.service';
-
-@Injectable()
-export class VideoTimelineService {
-  constructor(
-    @InjectRepository(VideoTimelineEntry)
-    private videoTimelineRepository: Repository<VideoTimelineEntry>,
-    private youtubeVideosService: YoutubeVideosService,
-  ) {}
-
-  async addVideoToTimeline(videoId: string, userId: string, publishDateTime: Date): Promise<VideoTimelineEntry> {
-    const video = await this.youtubeVideosService.getVideoById(videoId);
-    if (!video) {
-      throw new Error('Video not found');
-    }
-
-    const timelineEntry = this.videoTimelineRepository.create({
-      video,
-      userId,
-      publishDateTime,
-    });
-
-    return await this.videoTimelineRepository.save(timelineEntry);
-  }
-
-  async getTimelineForUser(userId: string): Promise<VideoTimelineEntry[]> {
-    return await this.videoTimelineRepository.find({
-      where: { userId },
-      relations: ['video'],
-      order: { publishDateTime: 'ASC' },
-    });
-  }
-}
+<FILE path="/home/travis/Projects/dejavideo/src/views/partials/channel-list.ejs">
+<h2>Added Channels</h2>
+<ul>
+  <% channels.forEach(function(channel) { %>
+    <li><%= channel.title %> (ID: <%= channel.channelId %>)</li>
+  <% }); %>
+</ul>
 </FILE>
 <FILE path="/home/travis/Projects/dejavideo/src/app.module.ts">
 import { Module } from '@nestjs/common';
@@ -744,175 +462,28 @@ const logger = new CustomLogger('Bootstrap');
 
 bootstrap(logger);
 </FILE>
-<FILE path="/home/travis/Projects/dejavideo/src/logger/custom-logger.ts">
-import { ConsoleLogger, Injectable, Inject } from '@nestjs/common';
-import * as fs from 'fs';
-import * as path from 'path';
+<FILE path="src/youtube-channels/youtube-channels.controller.ts" TARGET>
+import { Controller, Post, Body, Get, Param, Render } from '@nestjs/common';
+import { YoutubeChannelsService } from './youtube-channels.service';
+import { YoutubeChannel } from './youtube-channel.entity';
 
-@Injectable()
-export class CustomLogger extends ConsoleLogger {
-  constructor(
-    private logId: string,
-  ) {
-    super(logId);
-    this.setLogLevels(['log', 'error', 'warn', 'debug', 'verbose']);
+@Controller('youtube-channels')
+export class YoutubeChannelsController {
+  constructor(private readonly youtubeChannelsService: YoutubeChannelsService) {}
+
+  @Post()
+  async createChannel(@Body() channelData: Partial<YoutubeChannel>): Promise<YoutubeChannel> {
+    return this.youtubeChannelsService.saveChannel(channelData);
   }
 
-  log(message: string, context?: string) {
-    this.printMessage(message, 'log', context);
-    // this.emitLogEvent('log', message);
-  }
-
-  warn(message: string, context?: string) {
-    this.printMessage(message, 'warn', context);
-    // this.emitLogEvent('warn', message);
-  }
-
-  error(message: string, trace?: string, context?: string) {
-    this.printMessage(message, 'error', context);
-    // this.emitLogEvent('error', message);
-    if (trace) {
-      this.printMessage(trace, 'error', context);
-    }
-  }
-
-  debug(message: string, context?: string) {
-    this.printMessage(message, 'debug', context);
-  }
-
-  verbose(message: string, context?: string) {
-    this.printMessage(message, 'verbose', context);
-  }
-
-  private printMessage(message: string, logLevel: string, context?: string) {
-    const output = context ? `[${context}] ${message}` : message;
-    console.log(`[${this.getNow()}] [${logLevel.toUpperCase()}] [${this.logId}] ${output}`);
-  }
-
-  private getNow(): string {
-    return new Date().toISOString();
-  }
-
-  static write_to_file(message: string) {
-    const logFile = path.join(process.cwd(), 'start:dev.stdout.txt');
-    fs.appendFile(logFile, message, (err) => {
-      if (err) {
-        console.error('Failed to write to log file:', err);
-      }
-    });
-  }
-
-  static clearSTDOUT() {
-    const logFile = path.join(process.cwd(), 'start:dev.stdout.txt');
-    try {
-      fs.writeFileSync(logFile, '');
-      console.log(`Log file cleared at ${logFile}`);
-    } catch (error) {
-      console.error('Failed to clear log file:', error);
-    }
+  @Get(':userId')
+  @Render('partials/channel-options')
+  async getChannelsByUserId(@Param('userId') userId: string): Promise<{ channels: YoutubeChannel[] }> {
+    const channels = await this.youtubeChannelsService.getChannelsByUserId(userId);
+    return { channels };
   }
 }
 </FILE>
-<FILE path="/home/travis/Projects/dejavideo/start:dev.stdout.txt">
-[2J[3J[H[[90m10:19:52 PM[0m] Starting compilation in watch mode...
-
-[[90m10:19:58 PM[0m] Found 0 errors. Watching for file changes.
-
-[2024-09-30T03:19:59.359Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
-[2024-09-30T03:19:59.373Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T03:19:59.373Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
-[2024-09-30T03:19:59.397Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
-[2024-09-30T03:19:59.397Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T03:19:59.397Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T03:19:59.397Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T03:19:59.397Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-09-30T03:19:59.398Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
-[2024-09-30T03:19:59.398Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeChannelsModule dependencies initialized
-[2024-09-30T03:19:59.398Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeVideosModule dependencies initialized
-[2024-09-30T03:19:59.398Z] [LOG] [Bootstrap] [InstanceLoader] VideoTimelineModule dependencies initialized
-[2024-09-30T03:19:59.401Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
-[2024-09-30T03:19:59.402Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
-[2024-09-30T03:19:59.402Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
-[2024-09-30T03:19:59.403Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
-[2024-09-30T03:19:59.403Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
-[2024-09-30T03:19:59.403Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeChannelsController {/youtube-channels}:
-[2024-09-30T03:19:59.403Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels, POST} route
-[2024-09-30T03:19:59.403Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels/:userId, GET} route
-[2024-09-30T03:19:59.403Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeVideosController {/youtube-videos}:
-[2024-09-30T03:19:59.404Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos, POST} route
-[2024-09-30T03:19:59.404Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos/:userId, GET} route
-[2024-09-30T03:19:59.404Z] [LOG] [Bootstrap] [RoutesResolver] VideoTimelineController {/video-timeline}:
-[2024-09-30T03:19:59.404Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/video-timeline, POST} route
-[2024-09-30T03:19:59.404Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/video-timeline/:userId, GET} route
-[2024-09-30T03:19:59.406Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
-
-</FILE>
-<FILE path="src/views/index.ejs" TARGET>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DJ Video Queue</title>
-  <script src="https://unpkg.com/htmx.org@1.9.2"></script>
-  <%- include('style'); %> 
-</head>
-<body>
-  <h1>DeJa Video</h1>
-
-  <div id="add-video-form">
-    <h2>Queue Video Event</h2>
-    <form hx-post="/video-timeline" hx-target="#video-queue" hx-swap="afterbegin">
-      <select name="channelId" hx-get="/youtube-channels/dj123" hx-target="this" hx-trigger="load, click">
-        <option value="">Select a Channel</option>
-      </select>
-      
-      <select id="playlist-select" name="playlistId" hx-get="/youtube-playlists" hx-target="#video-select" hx-trigger="change">
-        <option value="">Select a Playlist</option>
-      </select>
-      
-      <select id="video-select" name="videoId">
-        <option value="">Select a Video</option>
-      </select>
-      
-      <label for="publishDateTime">Publish Date and Time:</label>
-      <input type="datetime-local" id="publishDateTime" name="publishDateTime" required>
-      
-      <input type="hidden" name="userId" value="dj123">
-      <button type="submit">Queue Video</button>
-    </form>
-  </div>
-  <br />
-  <div id="video-queue">
-    <!-- This section will be populated with video items -->
-  </div>
-
-  <div id="add-channel-form">
-    <h2>Add YouTube Channel</h2>
-    <form hx-post="/youtube-channels" hx-target="#channel-list" hx-swap="beforeend">
-      <input type="text" name="channelId" placeholder="YouTube Channel ID" required>
-      <input type="hidden" name="userId" value="dj123">
-      <button type="submit">Add Channel</button>
-    </form>
-  </div>
-  <br />
-  <div id="channel-list">
-    <!-- This section will be populated with added channels -->
-  </div>
-
-  <script>
-    // Load initial video queue
-    htmx.ajax('GET', '/video-timeline/dj123', {target: '#video-queue', swap: 'innerHTML'});
-    
-    // Load initial channel list
-    htmx.ajax('GET', '/youtube-channels/dj123', {target: 'select[name="channelId"]', swap: 'innerHTML'});
-
-    // Load initial added channels
-    htmx.ajax('GET', '/youtube-channels/dj123', {target: '#channel-list', swap: 'innerHTML'});
-  </script>
-</body>
-</html>
-</FILE>
 <REQUEST>
-there should be 2 channels showing up under select a channel
+there should be partial view for channel list and channel options
 </REQUEST>

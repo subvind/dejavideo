@@ -11,9 +11,16 @@ export class YoutubeChannelsController {
     return this.youtubeChannelsService.saveChannel(channelData);
   }
 
-  @Get(':userId')
+  @Get('options/:userId')
   @Render('partials/channel-options')
-  async getChannelsByUserId(@Param('userId') userId: string): Promise<{ channels: YoutubeChannel[] }> {
+  async getChannelOptions(@Param('userId') userId: string): Promise<{ channels: YoutubeChannel[] }> {
+    const channels = await this.youtubeChannelsService.getChannelsByUserId(userId);
+    return { channels };
+  }
+
+  @Get('list/:userId')
+  @Render('partials/channel-list')
+  async getChannelList(@Param('userId') userId: string): Promise<{ channels: YoutubeChannel[] }> {
     const channels = await this.youtubeChannelsService.getChannelsByUserId(userId);
     return { channels };
   }
