@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { YoutubeChannel } from './youtube-channel.entity';
@@ -23,10 +23,17 @@ export class YoutubeChannelsService {
   async saveChannel(channelData: Partial<YoutubeChannel>): Promise<YoutubeChannel> {
     if (!channelData.title) {
       if (channelData.channelId) {
-        const fetchedData = await this.fetchYoutubeChannelData(channelData.channelId);
-        channelData.title = fetchedData.title;
+        try {
+          const fetchedData = await this.fetchYoutubeChannelData(channelData.channelId);
+          channelData.title = fetchedData.title;
+        } catch (error) {
+          if (error instanceof NotFoundException) {
+            throw new BadRequestException('Channel not found');
+          }
+          throw error;
+        }
       } else {
-        throw new BadRequestException('Channel title is required');
+        throw new BadRequestException('Channel title or channelId is required');
       }
     }
 
@@ -57,10 +64,13 @@ export class YoutubeChannelsService {
           description: channel.snippet.description,
         };
       } else {
-        throw new Error('Channel not found');
+        throw new NotFoundException('Channel not found');
       }
     } catch (error) {
       console.error('Error fetching YouTube channel data:', error);
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new Error('Failed to fetch YouTube channel data');
     }
   }

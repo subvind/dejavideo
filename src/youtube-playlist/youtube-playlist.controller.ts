@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Render } from '@nestjs/common';
 import { YoutubePlaylistService } from './youtube-playlist.service';
 import { YoutubePlaylist } from './youtube-playlist.entity';
 
@@ -17,7 +17,10 @@ export class YoutubePlaylistController {
   }
 
   @Get('options/:channelId')
-  async getPlaylistOptions(@Param('channelId') channelId: string): Promise<YoutubePlaylist[]> {
-    return this.youtubePlaylistService.getPlaylistsByChannelId(channelId);
+  @Render('partials/playlist-options')
+  async getPlaylistOptions(@Param('channelId') channelId: string): Promise<{ playlists: YoutubePlaylist[] }> {
+    await this.youtubePlaylistService.fetchAndSavePlaylistsFromYoutube(channelId, channelId);
+    const playlists = await this.youtubePlaylistService.getPlaylistsFromDatabase(channelId);
+    return { playlists };
   }
 }

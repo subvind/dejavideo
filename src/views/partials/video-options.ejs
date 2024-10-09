@@ -1,0 +1,4 @@
+<option value="">Select a Video</option>
+<% videos.forEach(function(video) { %>
+  <option value="<%= video.videoId %>"><%= video.title %></option>
+<% }); %>

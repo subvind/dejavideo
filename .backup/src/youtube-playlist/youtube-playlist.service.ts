@@ -38,12 +38,16 @@ export class YoutubePlaylistService {
       });
 
       if (response.data.items && response.data.items.length > 0) {
-        return response.data.items.map(playlist => ({
-          playlistId: playlist.id,
-          title: playlist.snippet.title,
-          description: playlist.snippet.description,
-          userId: '', // You might want to set this based on your application logic
-        }));
+        const playlists: YoutubePlaylist[] = [];
+        response.data.items.map(async playlist => 
+          playlists.push(await this.savePlaylist({
+            playlistId: playlist.id,
+            title: playlist.snippet.title,
+            description: playlist.snippet.description,
+            userId: '', // You might want to set this based on your application logic
+          }))
+        );
+        return playlists;
       } else {
         return [];
       }

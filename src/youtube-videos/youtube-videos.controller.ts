@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Render } from '@nestjs/common';
 import { YoutubeVideosService } from './youtube-videos.service';
 import { YoutubeVideo } from './youtube-video.entity';
 
@@ -17,7 +17,9 @@ export class YoutubeVideosController {
   }
 
   @Get('options/:playlistId')
-  async getVideoOptions(@Param('playlistId') playlistId: string): Promise<YoutubeVideo[]> {
-    return this.youtubeVideosService.getVideosByPlaylistId(playlistId);
+  @Render('partials/video-options')
+  async getVideoOptions(@Param('playlistId') playlistId: string): Promise<{ videos: YoutubeVideo[] }> {
+    const videos = await this.youtubeVideosService.getVideosByPlaylistId(playlistId);
+    return { videos };
   }
 }

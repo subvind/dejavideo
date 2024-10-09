@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { YoutubePlaylist } from './youtube-playlist.entity';
@@ -29,7 +29,14 @@ export class YoutubePlaylistService {
     return await this.youtubePlaylistRepository.find({ where: { userId } });
   }
 
-  async getPlaylistsByChannelId(channelId: string): Promise<YoutubePlaylist[]> {
+  async getPlaylistsFromDatabase(channelId: string): Promise<YoutubePlaylist[]> {
+    let res = await this.youtubePlaylistRepository.find({ where: { userId: channelId } });
+
+    // console.log('res', res);
+    return res;
+  }
+
+  async fetchAndSavePlaylistsFromYoutube(channelId: string, userId: string): Promise<YoutubePlaylist[]> {
     try {
       const response = await this.youtube.playlists.list({
         part: ['snippet'],
@@ -39,14 +46,19 @@ export class YoutubePlaylistService {
 
       if (response.data.items && response.data.items.length > 0) {
         const playlists: YoutubePlaylist[] = [];
-        response.data.items.map(async playlist => 
-          playlists.push(await this.savePlaylist({
-            playlistId: playlist.id,
-            title: playlist.snippet.title,
-            description: playlist.snippet.description,
-            userId: '', // You might want to set this based on your application logic
-          }))
-        );
+        for (const playlist of response.data.items) {
+          let existingPlaylist = await this.youtubePlaylistRepository.findOne({ where: { playlistId: playlist.id } });
+          if (!existingPlaylist) {
+            existingPlaylist = await this.savePlaylist({
+              playlistId: playlist.id,
+              title: playlist.snippet.title,
+              description: playlist.snippet.description,
+              userId: userId,
+            });
+          }
+          playlists.push(existingPlaylist);
+          // console.log('existingPlaylist', existingPlaylist);
+        }
         return playlists;
       } else {
         return [];
@@ -57,26 +69,11 @@ export class YoutubePlaylistService {
     }
   }
 
-  async fetchYoutubePlaylistData(playlistId: string): Promise<Partial<YoutubePlaylist>> {
-    try {
-      const response = await this.youtube.playlists.list({
-        part: ['snippet'],
-        id: [playlistId],
-      });
-
-      if (response.data.items && response.data.items.length > 0) {
-        const playlist = response.data.items[0];
-        return {
-          playlistId: playlist.id,
-          title: playlist.snippet.title,
-          description: playlist.snippet.description,
-        };
-      } else {
-        throw new Error('Playlist not found');
-      }
-    } catch (error) {
-      console.error('Error fetching YouTube playlist data:', error);
-      throw new Error('Failed to fetch YouTube playlist data');
+  async getPlaylistsByChannelId(channelId: string, userId: string): Promise<YoutubePlaylist[]> {
+    let playlists = await this.getPlaylistsFromDatabase(channelId);
+    if (playlists.length === 0) {
+      playlists = await this.fetchAndSavePlaylistsFromYoutube(channelId, userId);
     }
+    return playlists;
   }
 }

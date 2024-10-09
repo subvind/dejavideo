@@ -1,0 +1,4 @@
+<option value="">Select a Playlist</option>
+<% playlists.forEach(function(playlist) { %>
+  <option value="<%= playlist.playlistId %>"><%= playlist.title %></option>
+<% }); %>

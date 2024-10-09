@@ -1,409 +1,207 @@
-[2J[3J[H[[90m4:15:12 PM[0m] Starting compilation in watch mode...
+[2J[3J[H[[90m5:21:25 PM[0m] Starting compilation in watch mode...
 
-[96msrc/youtube-videos/youtube-videos.service.ts[0m:[93m45[0m:[93m9[0m - [91merror[0m[90m TS2322: [0mType '{ videoId: string; title: string; description: string; userId: string; channelId: string; playlistId: string; }[]' is not assignable to type 'YoutubeVideo[]'.
-  Property 'id' is missing in type '{ videoId: string; title: string; description: string; userId: string; channelId: string; playlistId: string; }' but required in type 'YoutubeVideo'.
+[[90m5:21:32 PM[0m] Found 0 errors. Watching for file changes.
 
-[7m45[0m         return response.data.items.map(item => ({
-[7m  [0m [91m        ~~~~~~[0m
+[2024-10-09T22:21:33.137Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
+[2024-10-09T22:21:33.150Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-10-09T22:21:33.150Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
+[2024-10-09T22:21:33.172Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
+[2024-10-09T22:21:33.172Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-10-09T22:21:33.172Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-10-09T22:21:33.172Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-10-09T22:21:33.172Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-10-09T22:21:33.173Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
+[2024-10-09T22:21:33.173Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeChannelsModule dependencies initialized
+[2024-10-09T22:21:33.174Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeVideosModule dependencies initialized
+[2024-10-09T22:21:33.174Z] [LOG] [Bootstrap] [InstanceLoader] VideoTimelineModule dependencies initialized
+[2024-10-09T22:21:33.177Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
+[2024-10-09T22:21:33.178Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
+[2024-10-09T22:21:33.179Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
+[2024-10-09T22:21:33.179Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
+[2024-10-09T22:21:33.179Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
+[2024-10-09T22:21:33.179Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/options/:channelId, GET} route
+[2024-10-09T22:21:33.179Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeChannelsController {/youtube-channels}:
+[2024-10-09T22:21:33.180Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels, POST} route
+[2024-10-09T22:21:33.180Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels/options/:userId, GET} route
+[2024-10-09T22:21:33.180Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels/list/:userId, GET} route
+[2024-10-09T22:21:33.180Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeVideosController {/youtube-videos}:
+[2024-10-09T22:21:33.180Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos, POST} route
+[2024-10-09T22:21:33.180Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos/:userId, GET} route
+[2024-10-09T22:21:33.180Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos/options/:playlistId, GET} route
+[2024-10-09T22:21:33.180Z] [LOG] [Bootstrap] [RoutesResolver] VideoTimelineController {/video-timeline}:
+[2024-10-09T22:21:33.181Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/video-timeline, POST} route
+[2024-10-09T22:21:33.181Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/video-timeline/:userId, GET} route
+[2024-10-09T22:21:33.182Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
+[2024-10-09T22:21:37.266Z] [ERROR] [Bootstrap] [ExceptionsHandler] /home/travis/Projects/dejavideo/src/views/partials/playlist-options.ejs:2
+    1| <option value="">Select a Playlist</option>
+ >> 2| <% playlists.forEach(function(playlist) { %>
+    3|   <option value="<%= playlist.playlistId %>"><%= playlist.title %></option>
+    4| <% }); %>
 
-  [96msrc/youtube-videos/youtube-video.entity.ts[0m:[93m6[0m:[93m3[0m
-    [7m6[0m   id: number;
-    [7m [0m [96m  ~~[0m
-    'id' is declared here.
+playlists is not defined
+[2024-10-09T22:21:37.266Z] [ERROR] [Bootstrap] [ExceptionsHandler] ReferenceError: /home/travis/Projects/dejavideo/src/views/partials/playlist-options.ejs:2
+    1| <option value="">Select a Playlist</option>
+ >> 2| <% playlists.forEach(function(playlist) { %>
+    3|   <option value="<%= playlist.playlistId %>"><%= playlist.title %></option>
+    4| <% }); %>
 
-[[90m4:15:18 PM[0m] Found 1 error. Watching for file changes.
+playlists is not defined
+    at eval ("/home/travis/Projects/dejavideo/src/views/partials/playlist-options.ejs":12:8)
+    at playlist-options (/home/travis/Projects/dejavideo/node_modules/ejs/lib/ejs.js:703:17)
+    at tryHandleCache (/home/travis/Projects/dejavideo/node_modules/ejs/lib/ejs.js:274:36)
+    at exports.renderFile [as engine] (/home/travis/Projects/dejavideo/node_modules/ejs/lib/ejs.js:491:10)
+    at View.render (/home/travis/Projects/dejavideo/node_modules/express/lib/view.js:135:8)
+    at tryRender (/home/travis/Projects/dejavideo/node_modules/express/lib/application.js:657:10)
+    at Function.render (/home/travis/Projects/dejavideo/node_modules/express/lib/application.js:609:3)
+    at ServerResponse.render (/home/travis/Projects/dejavideo/node_modules/express/lib/response.js:1049:7)
+    at ExpressAdapter.render (/home/travis/Projects/dejavideo/node_modules/@nestjs/platform-express/adapters/express-adapter.js:71:25)
+    at RouterResponseController.render (/home/travis/Projects/dejavideo/node_modules/@nestjs/core/router/router-response-controller.js:29:36)
+[2024-10-09T22:21:40.512Z] [ERROR] [Bootstrap] [ExceptionsHandler] /home/travis/Projects/dejavideo/src/views/partials/playlist-options.ejs:2
+    1| <option value="">Select a Playlist</option>
+ >> 2| <% playlists.forEach(function(playlist) { %>
+    3|   <option value="<%= playlist.playlistId %>"><%= playlist.title %></option>
+    4| <% }); %>
 
-[2J[3J[H[[90m4:18:10 PM[0m] File change detected. Starting incremental compilation...
+playlists is not defined
+[2024-10-09T22:21:40.512Z] [ERROR] [Bootstrap] [ExceptionsHandler] ReferenceError: /home/travis/Projects/dejavideo/src/views/partials/playlist-options.ejs:2
+    1| <option value="">Select a Playlist</option>
+ >> 2| <% playlists.forEach(function(playlist) { %>
+    3|   <option value="<%= playlist.playlistId %>"><%= playlist.title %></option>
+    4| <% }); %>
 
-[[90m4:18:10 PM[0m] Found 0 errors. Watching for file changes.
+playlists is not defined
+    at eval ("/home/travis/Projects/dejavideo/src/views/partials/playlist-options.ejs":12:8)
+    at playlist-options (/home/travis/Projects/dejavideo/node_modules/ejs/lib/ejs.js:703:17)
+    at tryHandleCache (/home/travis/Projects/dejavideo/node_modules/ejs/lib/ejs.js:274:36)
+    at exports.renderFile [as engine] (/home/travis/Projects/dejavideo/node_modules/ejs/lib/ejs.js:491:10)
+    at View.render (/home/travis/Projects/dejavideo/node_modules/express/lib/view.js:135:8)
+    at tryRender (/home/travis/Projects/dejavideo/node_modules/express/lib/application.js:657:10)
+    at Function.render (/home/travis/Projects/dejavideo/node_modules/express/lib/application.js:609:3)
+    at ServerResponse.render (/home/travis/Projects/dejavideo/node_modules/express/lib/response.js:1049:7)
+    at ExpressAdapter.render (/home/travis/Projects/dejavideo/node_modules/@nestjs/platform-express/adapters/express-adapter.js:71:25)
+    at RouterResponseController.render (/home/travis/Projects/dejavideo/node_modules/@nestjs/core/router/router-response-controller.js:29:36)
+[2J[3J[H[[90m5:22:52 PM[0m] File change detected. Starting incremental compilation...
 
-[2024-10-09T21:18:11.540Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
-[2024-10-09T21:18:11.553Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-10-09T21:18:11.554Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
-[2024-10-09T21:18:11.576Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
-[2024-10-09T21:18:11.576Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-10-09T21:18:11.576Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-10-09T21:18:11.576Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-10-09T21:18:11.576Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
-[2024-10-09T21:18:11.577Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
-[2024-10-09T21:18:11.577Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeChannelsModule dependencies initialized
-[2024-10-09T21:18:11.577Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeVideosModule dependencies initialized
-[2024-10-09T21:18:11.577Z] [LOG] [Bootstrap] [InstanceLoader] VideoTimelineModule dependencies initialized
-[2024-10-09T21:18:11.580Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
-[2024-10-09T21:18:11.581Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
-[2024-10-09T21:18:11.582Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
-[2024-10-09T21:18:11.582Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
-[2024-10-09T21:18:11.582Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
-[2024-10-09T21:18:11.582Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/options/:channelId, GET} route
-[2024-10-09T21:18:11.582Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeChannelsController {/youtube-channels}:
-[2024-10-09T21:18:11.583Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels, POST} route
-[2024-10-09T21:18:11.583Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels/options/:userId, GET} route
-[2024-10-09T21:18:11.583Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels/list/:userId, GET} route
-[2024-10-09T21:18:11.583Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeVideosController {/youtube-videos}:
-[2024-10-09T21:18:11.583Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos, POST} route
-[2024-10-09T21:18:11.583Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos/:userId, GET} route
-[2024-10-09T21:18:11.583Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos/options/:playlistId, GET} route
-[2024-10-09T21:18:11.584Z] [LOG] [Bootstrap] [RoutesResolver] VideoTimelineController {/video-timeline}:
-[2024-10-09T21:18:11.584Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/video-timeline, POST} route
-[2024-10-09T21:18:11.584Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/video-timeline/:userId, GET} route
-[2024-10-09T21:18:11.586Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
-Error fetching YouTube playlists: GaxiosError: Channel not found.
-    at Gaxios._request (/home/travis/Projects/dejavideo/node_modules/gaxios/src/gaxios.ts:146:15)
-    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
-    at async JWT.requestAsync (/home/travis/Projects/dejavideo/node_modules/google-auth-library/build/src/auth/oauth2client.js:429:18)
-    at async YoutubePlaylistService.getPlaylistsByChannelId (/home/travis/Projects/dejavideo/src/youtube-playlist/youtube-playlist.service.ts:34:24)
-    at async /home/travis/Projects/dejavideo/node_modules/@nestjs/core/router/router-execution-context.js:46:28
-    at async /home/travis/Projects/dejavideo/node_modules/@nestjs/core/router/router-proxy.js:9:17 {
-  config: {
-    url: 'https://youtube.googleapis.com/youtube/v3/playlists?part=snippet&channelId=%24%7BchannelId%7D&maxResults=50',
-    method: 'GET',
-    apiVersion: '',
-    userAgentDirectives: [ [Object] ],
-    paramsSerializer: [Function (anonymous)],
-    headers: {
-      'x-goog-api-client': 'gdcl/7.2.0 gl-node/20.17.0',
-      'Accept-Encoding': 'gzip',
-      'User-Agent': 'google-api-nodejs-client/7.2.0 (gzip)',
-      Authorization: '<<REDACTED> - See `errorRedactor` option in `gaxios` for configuration>.'
-    },
-    params: { part: [Array], channelId: '${channelId}', maxResults: 50 },
-    validateStatus: [Function (anonymous)],
-    retry: true,
-    responseType: 'unknown',
-    errorRedactor: [Function: defaultErrorRedactor],
-    retryConfig: {
-      currentRetryAttempt: 0,
-      retry: 3,
-      httpMethodsToRetry: [Array],
-      noResponseRetries: 2,
-      retryDelayMultiplier: 2,
-      timeOfFirstRequest: 1728508705310,
-      totalTimeout: 9007199254740991,
-      maxRetryDelay: 9007199254740991,
-      statusCodesToRetry: [Array]
-    }
-  },
-  response: {
-    config: {
-      url: 'https://youtube.googleapis.com/youtube/v3/playlists?part=snippet&channelId=%24%7BchannelId%7D&maxResults=50',
-      method: 'GET',
-      apiVersion: '',
-      userAgentDirectives: [Array],
-      paramsSerializer: [Function (anonymous)],
-      headers: [Object],
-      params: [Object],
-      validateStatus: [Function (anonymous)],
-      retry: true,
-      responseType: 'unknown',
-      errorRedactor: [Function: defaultErrorRedactor]
-    },
-    data: { error: [Object] },
-    headers: {
-      'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000',
-      'cache-control': 'private',
-      'content-encoding': 'gzip',
-      'content-type': 'application/json; charset=UTF-8',
-      date: 'Wed, 09 Oct 2024 21:18:25 GMT',
-      server: 'scaffolding on HTTPServer2',
-      'transfer-encoding': 'chunked',
-      vary: 'Origin, X-Origin, Referer',
-      'x-content-type-options': 'nosniff',
-      'x-frame-options': 'SAMEORIGIN',
-      'x-xss-protection': '0'
-    },
-    status: 404,
-    statusText: 'Not Found',
-    request: {
-      responseURL: 'https://youtube.googleapis.com/youtube/v3/playlists?part=snippet&channelId=%24%7BchannelId%7D&maxResults=50'
-    }
-  },
-  error: undefined,
-  status: 404,
-  code: 404,
-  errors: [
-    {
-      message: 'Channel not found.',
-      domain: 'youtube.playlist',
-      reason: 'channelNotFound',
-      location: 'channelId',
-      locationType: 'parameter'
-    }
-  ],
-  [Symbol(gaxios-gaxios-error)]: '6.7.1'
-}
-[2024-10-09T21:18:25.316Z] [ERROR] [Bootstrap] [ExceptionsHandler] Failed to fetch YouTube playlists
-[2024-10-09T21:18:25.316Z] [ERROR] [Bootstrap] [ExceptionsHandler] Error: Failed to fetch YouTube playlists
-    at YoutubePlaylistService.getPlaylistsByChannelId (/home/travis/Projects/dejavideo/src/youtube-playlist/youtube-playlist.service.ts:56:13)
-    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
-    at async /home/travis/Projects/dejavideo/node_modules/@nestjs/core/router/router-execution-context.js:46:28
-    at async /home/travis/Projects/dejavideo/node_modules/@nestjs/core/router/router-proxy.js:9:17
-Error fetching YouTube playlist videos: GaxiosError: The playlist identified with the request's <code>playlistId</code> parameter cannot be found.
-    at Gaxios._request (/home/travis/Projects/dejavideo/node_modules/gaxios/src/gaxios.ts:146:15)
-    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
-    at async JWT.requestAsync (/home/travis/Projects/dejavideo/node_modules/google-auth-library/build/src/auth/oauth2client.js:429:18)
-    at async YoutubeVideosService.getVideosByPlaylistId (/home/travis/Projects/dejavideo/src/youtube-videos/youtube-videos.service.ts:38:24)
-    at async /home/travis/Projects/dejavideo/node_modules/@nestjs/core/router/router-execution-context.js:46:28
-    at async /home/travis/Projects/dejavideo/node_modules/@nestjs/core/router/router-proxy.js:9:17 {
-  config: {
-    url: 'https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=%24%7BplaylistId%7D&maxResults=50',
-    method: 'GET',
-    apiVersion: '',
-    userAgentDirectives: [ [Object] ],
-    paramsSerializer: [Function (anonymous)],
-    headers: {
-      'x-goog-api-client': 'gdcl/7.2.0 gl-node/20.17.0',
-      'Accept-Encoding': 'gzip',
-      'User-Agent': 'google-api-nodejs-client/7.2.0 (gzip)',
-      Authorization: '<<REDACTED> - See `errorRedactor` option in `gaxios` for configuration>.'
-    },
-    params: { part: [Array], playlistId: '${playlistId}', maxResults: 50 },
-    validateStatus: [Function (anonymous)],
-    retry: true,
-    responseType: 'unknown',
-    errorRedactor: [Function: defaultErrorRedactor],
-    retryConfig: {
-      currentRetryAttempt: 0,
-      retry: 3,
-      httpMethodsToRetry: [Array],
-      noResponseRetries: 2,
-      retryDelayMultiplier: 2,
-      timeOfFirstRequest: 1728508705327,
-      totalTimeout: 9007199254740991,
-      maxRetryDelay: 9007199254740991,
-      statusCodesToRetry: [Array]
-    }
-  },
-  response: {
-    config: {
-      url: 'https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=%24%7BplaylistId%7D&maxResults=50',
-      method: 'GET',
-      apiVersion: '',
-      userAgentDirectives: [Array],
-      paramsSerializer: [Function (anonymous)],
-      headers: [Object],
-      params: [Object],
-      validateStatus: [Function (anonymous)],
-      retry: true,
-      responseType: 'unknown',
-      errorRedactor: [Function: defaultErrorRedactor]
-    },
-    data: { error: [Object] },
-    headers: {
-      'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000',
-      'cache-control': 'private',
-      'content-encoding': 'gzip',
-      'content-type': 'application/json; charset=UTF-8',
-      date: 'Wed, 09 Oct 2024 21:18:25 GMT',
-      server: 'scaffolding on HTTPServer2',
-      'transfer-encoding': 'chunked',
-      vary: 'Origin, X-Origin, Referer',
-      'x-content-type-options': 'nosniff',
-      'x-frame-options': 'SAMEORIGIN',
-      'x-xss-protection': '0'
-    },
-    status: 404,
-    statusText: 'Not Found',
-    request: {
-      responseURL: 'https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=%24%7BplaylistId%7D&maxResults=50'
-    }
-  },
-  error: undefined,
-  status: 404,
-  code: 404,
-  errors: [
-    {
-      message: "The playlist identified with the request's <code>playlistId</code> parameter cannot be found.",
-      domain: 'youtube.playlistItem',
-      reason: 'playlistNotFound',
-      location: 'playlistId',
-      locationType: 'parameter'
-    }
-  ],
-  [Symbol(gaxios-gaxios-error)]: '6.7.1'
-}
-[2024-10-09T21:18:25.329Z] [ERROR] [Bootstrap] [ExceptionsHandler] Failed to fetch YouTube playlist videos
-[2024-10-09T21:18:25.329Z] [ERROR] [Bootstrap] [ExceptionsHandler] Error: Failed to fetch YouTube playlist videos
-    at YoutubeVideosService.getVideosByPlaylistId (/home/travis/Projects/dejavideo/src/youtube-videos/youtube-videos.service.ts:61:13)
-    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
-    at async /home/travis/Projects/dejavideo/node_modules/@nestjs/core/router/router-execution-context.js:46:28
-    at async /home/travis/Projects/dejavideo/node_modules/@nestjs/core/router/router-proxy.js:9:17
-Error fetching YouTube playlist videos: GaxiosError: The playlist identified with the request's <code>playlistId</code> parameter cannot be found.
-    at Gaxios._request (/home/travis/Projects/dejavideo/node_modules/gaxios/src/gaxios.ts:146:15)
-    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
-    at async JWT.requestAsync (/home/travis/Projects/dejavideo/node_modules/google-auth-library/build/src/auth/oauth2client.js:429:18)
-    at async YoutubeVideosService.getVideosByPlaylistId (/home/travis/Projects/dejavideo/src/youtube-videos/youtube-videos.service.ts:38:24)
-    at async /home/travis/Projects/dejavideo/node_modules/@nestjs/core/router/router-execution-context.js:46:28
-    at async /home/travis/Projects/dejavideo/node_modules/@nestjs/core/router/router-proxy.js:9:17 {
-  config: {
-    url: 'https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=%24%7BplaylistId%7D&maxResults=50',
-    method: 'GET',
-    apiVersion: '',
-    userAgentDirectives: [ [Object] ],
-    paramsSerializer: [Function (anonymous)],
-    headers: {
-      'x-goog-api-client': 'gdcl/7.2.0 gl-node/20.17.0',
-      'Accept-Encoding': 'gzip',
-      'User-Agent': 'google-api-nodejs-client/7.2.0 (gzip)',
-      Authorization: '<<REDACTED> - See `errorRedactor` option in `gaxios` for configuration>.'
-    },
-    params: { part: [Array], playlistId: '${playlistId}', maxResults: 50 },
-    validateStatus: [Function (anonymous)],
-    retry: true,
-    responseType: 'unknown',
-    errorRedactor: [Function: defaultErrorRedactor],
-    retryConfig: {
-      currentRetryAttempt: 0,
-      retry: 3,
-      httpMethodsToRetry: [Array],
-      noResponseRetries: 2,
-      retryDelayMultiplier: 2,
-      timeOfFirstRequest: 1728509050953,
-      totalTimeout: 9007199254740991,
-      maxRetryDelay: 9007199254740991,
-      statusCodesToRetry: [Array]
-    }
-  },
-  response: {
-    config: {
-      url: 'https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=%24%7BplaylistId%7D&maxResults=50',
-      method: 'GET',
-      apiVersion: '',
-      userAgentDirectives: [Array],
-      paramsSerializer: [Function (anonymous)],
-      headers: [Object],
-      params: [Object],
-      validateStatus: [Function (anonymous)],
-      retry: true,
-      responseType: 'unknown',
-      errorRedactor: [Function: defaultErrorRedactor]
-    },
-    data: { error: [Object] },
-    headers: {
-      'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000',
-      'cache-control': 'private',
-      'content-encoding': 'gzip',
-      'content-type': 'application/json; charset=UTF-8',
-      date: 'Wed, 09 Oct 2024 21:24:10 GMT',
-      server: 'scaffolding on HTTPServer2',
-      'transfer-encoding': 'chunked',
-      vary: 'Origin, X-Origin, Referer',
-      'x-content-type-options': 'nosniff',
-      'x-frame-options': 'SAMEORIGIN',
-      'x-xss-protection': '0'
-    },
-    status: 404,
-    statusText: 'Not Found',
-    request: {
-      responseURL: 'https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=%24%7BplaylistId%7D&maxResults=50'
-    }
-  },
-  error: undefined,
-  status: 404,
-  code: 404,
-  errors: [
-    {
-      message: "The playlist identified with the request's <code>playlistId</code> parameter cannot be found.",
-      domain: 'youtube.playlistItem',
-      reason: 'playlistNotFound',
-      location: 'playlistId',
-      locationType: 'parameter'
-    }
-  ],
-  [Symbol(gaxios-gaxios-error)]: '6.7.1'
-}
-[2024-10-09T21:24:10.954Z] [ERROR] [Bootstrap] [ExceptionsHandler] Failed to fetch YouTube playlist videos
-[2024-10-09T21:24:10.954Z] [ERROR] [Bootstrap] [ExceptionsHandler] Error: Failed to fetch YouTube playlist videos
-    at YoutubeVideosService.getVideosByPlaylistId (/home/travis/Projects/dejavideo/src/youtube-videos/youtube-videos.service.ts:61:13)
-    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
-    at async /home/travis/Projects/dejavideo/node_modules/@nestjs/core/router/router-execution-context.js:46:28
-    at async /home/travis/Projects/dejavideo/node_modules/@nestjs/core/router/router-proxy.js:9:17
-Error fetching YouTube playlists: GaxiosError: Channel not found.
-    at Gaxios._request (/home/travis/Projects/dejavideo/node_modules/gaxios/src/gaxios.ts:146:15)
-    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
-    at async JWT.requestAsync (/home/travis/Projects/dejavideo/node_modules/google-auth-library/build/src/auth/oauth2client.js:429:18)
-    at async YoutubePlaylistService.getPlaylistsByChannelId (/home/travis/Projects/dejavideo/src/youtube-playlist/youtube-playlist.service.ts:34:24)
-    at async /home/travis/Projects/dejavideo/node_modules/@nestjs/core/router/router-execution-context.js:46:28
-    at async /home/travis/Projects/dejavideo/node_modules/@nestjs/core/router/router-proxy.js:9:17 {
-  config: {
-    url: 'https://youtube.googleapis.com/youtube/v3/playlists?part=snippet&channelId=%24%7BchannelId%7D&maxResults=50',
-    method: 'GET',
-    apiVersion: '',
-    userAgentDirectives: [ [Object] ],
-    paramsSerializer: [Function (anonymous)],
-    headers: {
-      'x-goog-api-client': 'gdcl/7.2.0 gl-node/20.17.0',
-      'Accept-Encoding': 'gzip',
-      'User-Agent': 'google-api-nodejs-client/7.2.0 (gzip)',
-      Authorization: '<<REDACTED> - See `errorRedactor` option in `gaxios` for configuration>.'
-    },
-    params: { part: [Array], channelId: '${channelId}', maxResults: 50 },
-    validateStatus: [Function (anonymous)],
-    retry: true,
-    responseType: 'unknown',
-    errorRedactor: [Function: defaultErrorRedactor],
-    retryConfig: {
-      currentRetryAttempt: 0,
-      retry: 3,
-      httpMethodsToRetry: [Array],
-      noResponseRetries: 2,
-      retryDelayMultiplier: 2,
-      timeOfFirstRequest: 1728509050958,
-      totalTimeout: 9007199254740991,
-      maxRetryDelay: 9007199254740991,
-      statusCodesToRetry: [Array]
-    }
-  },
-  response: {
-    config: {
-      url: 'https://youtube.googleapis.com/youtube/v3/playlists?part=snippet&channelId=%24%7BchannelId%7D&maxResults=50',
-      method: 'GET',
-      apiVersion: '',
-      userAgentDirectives: [Array],
-      paramsSerializer: [Function (anonymous)],
-      headers: [Object],
-      params: [Object],
-      validateStatus: [Function (anonymous)],
-      retry: true,
-      responseType: 'unknown',
-      errorRedactor: [Function: defaultErrorRedactor]
-    },
-    data: { error: [Object] },
-    headers: {
-      'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000',
-      'cache-control': 'private',
-      'content-encoding': 'gzip',
-      'content-type': 'application/json; charset=UTF-8',
-      date: 'Wed, 09 Oct 2024 21:24:10 GMT',
-      server: 'scaffolding on HTTPServer2',
-      'transfer-encoding': 'chunked',
-      vary: 'Origin, X-Origin, Referer',
-      'x-content-type-options': 'nosniff',
-      'x-frame-options': 'SAMEORIGIN',
-      'x-xss-protection': '0'
-    },
-    status: 404,
-    statusText: 'Not Found',
-    request: {
-      responseURL: 'https://youtube.googleapis.com/youtube/v3/playlists?part=snippet&channelId=%24%7BchannelId%7D&maxResults=50'
-    }
-  },
-  error: undefined,
-  status: 404,
-  code: 404,
-  errors: [
-    {
-      message: 'Channel not found.',
-      domain: 'youtube.playlist',
-      reason: 'channelNotFound',
-      location: 'channelId',
-      locationType: 'parameter'
-    }
-  ],
-  [Symbol(gaxios-gaxios-error)]: '6.7.1'
-}
-[2024-10-09T21:24:10.959Z] [ERROR] [Bootstrap] [ExceptionsHandler] Failed to fetch YouTube playlists
-[2024-10-09T21:24:10.959Z] [ERROR] [Bootstrap] [ExceptionsHandler] Error: Failed to fetch YouTube playlists
-    at YoutubePlaylistService.getPlaylistsByChannelId (/home/travis/Projects/dejavideo/src/youtube-playlist/youtube-playlist.service.ts:56:13)
-    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
-    at async /home/travis/Projects/dejavideo/node_modules/@nestjs/core/router/router-execution-context.js:46:28
-    at async /home/travis/Projects/dejavideo/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[96msrc/youtube-playlist/youtube-playlist.controller.ts[0m:[93m24[0m:[93m14[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'playlists' does not exist in type '{ channels: YoutubePlaylist[]; }'.
+
+[7m24[0m     return { playlists };
+[7m  [0m [91m             ~~~~~~~~~[0m
+
+[[90m5:22:53 PM[0m] Found 1 error. Watching for file changes.
+
+[2J[3J[H[[90m5:22:59 PM[0m] File change detected. Starting incremental compilation...
+
+[96msrc/youtube-playlist/youtube-playlist.controller.ts[0m:[93m24[0m:[93m14[0m - [91merror[0m[90m TS2740: [0mType 'Promise<YoutubePlaylist[]>' is missing the following properties from type 'YoutubePlaylist[]': length, pop, push, concat, and 29 more.
+
+[7m24[0m     return { playlists };
+[7m  [0m [91m             ~~~~~~~~~[0m
+
+  [96msrc/youtube-playlist/youtube-playlist.controller.ts[0m:[93m21[0m:[93m78[0m
+    [7m21[0m   async getPlaylistOptions(@Param('channelId') channelId: string): Promise<{ playlists: YoutubePlaylist[] }> {
+    [7m  [0m [96m                                                                             ~~~~~~~~~[0m
+    The expected type comes from property 'playlists' which is declared here on type '{ playlists: YoutubePlaylist[]; }'
+
+[[90m5:22:59 PM[0m] Found 1 error. Watching for file changes.
+
+[2J[3J[H[[90m5:23:28 PM[0m] File change detected. Starting incremental compilation...
+
+[[90m5:23:29 PM[0m] Found 0 errors. Watching for file changes.
+
+[2024-10-09T22:23:29.852Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
+[2024-10-09T22:23:29.865Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-10-09T22:23:29.866Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
+[2024-10-09T22:23:29.888Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
+[2024-10-09T22:23:29.888Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-10-09T22:23:29.888Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-10-09T22:23:29.888Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-10-09T22:23:29.888Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-10-09T22:23:29.889Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
+[2024-10-09T22:23:29.889Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeChannelsModule dependencies initialized
+[2024-10-09T22:23:29.889Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeVideosModule dependencies initialized
+[2024-10-09T22:23:29.889Z] [LOG] [Bootstrap] [InstanceLoader] VideoTimelineModule dependencies initialized
+[2024-10-09T22:23:29.893Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
+[2024-10-09T22:23:29.894Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
+[2024-10-09T22:23:29.894Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
+[2024-10-09T22:23:29.895Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
+[2024-10-09T22:23:29.895Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
+[2024-10-09T22:23:29.895Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/options/:channelId, GET} route
+[2024-10-09T22:23:29.895Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeChannelsController {/youtube-channels}:
+[2024-10-09T22:23:29.895Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels, POST} route
+[2024-10-09T22:23:29.896Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels/options/:userId, GET} route
+[2024-10-09T22:23:29.896Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels/list/:userId, GET} route
+[2024-10-09T22:23:29.896Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeVideosController {/youtube-videos}:
+[2024-10-09T22:23:29.896Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos, POST} route
+[2024-10-09T22:23:29.896Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos/:userId, GET} route
+[2024-10-09T22:23:29.896Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos/options/:playlistId, GET} route
+[2024-10-09T22:23:29.896Z] [LOG] [Bootstrap] [RoutesResolver] VideoTimelineController {/video-timeline}:
+[2024-10-09T22:23:29.897Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/video-timeline, POST} route
+[2024-10-09T22:23:29.897Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/video-timeline/:userId, GET} route
+[2024-10-09T22:23:29.898Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
+[2J[3J[H[[90m5:35:51 PM[0m] File change detected. Starting incremental compilation...
+
+[[90m5:35:51 PM[0m] Found 0 errors. Watching for file changes.
+
+[2024-10-09T22:35:52.358Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
+[2024-10-09T22:35:52.371Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-10-09T22:35:52.372Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
+[2024-10-09T22:35:52.395Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
+[2024-10-09T22:35:52.395Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-10-09T22:35:52.395Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-10-09T22:35:52.395Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-10-09T22:35:52.395Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-10-09T22:35:52.396Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
+[2024-10-09T22:35:52.396Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeChannelsModule dependencies initialized
+[2024-10-09T22:35:52.396Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeVideosModule dependencies initialized
+[2024-10-09T22:35:52.396Z] [LOG] [Bootstrap] [InstanceLoader] VideoTimelineModule dependencies initialized
+[2024-10-09T22:35:52.400Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
+[2024-10-09T22:35:52.401Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
+[2024-10-09T22:35:52.402Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
+[2024-10-09T22:35:52.402Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
+[2024-10-09T22:35:52.402Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
+[2024-10-09T22:35:52.402Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/options/:channelId, GET} route
+[2024-10-09T22:35:52.402Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeChannelsController {/youtube-channels}:
+[2024-10-09T22:35:52.402Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels, POST} route
+[2024-10-09T22:35:52.403Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels/options/:userId, GET} route
+[2024-10-09T22:35:52.403Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels/list/:userId, GET} route
+[2024-10-09T22:35:52.403Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeVideosController {/youtube-videos}:
+[2024-10-09T22:35:52.403Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos, POST} route
+[2024-10-09T22:35:52.403Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos/:userId, GET} route
+[2024-10-09T22:35:52.403Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos/options/:playlistId, GET} route
+[2024-10-09T22:35:52.403Z] [LOG] [Bootstrap] [RoutesResolver] VideoTimelineController {/video-timeline}:
+[2024-10-09T22:35:52.404Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/video-timeline, POST} route
+[2024-10-09T22:35:52.404Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/video-timeline/:userId, GET} route
+[2024-10-09T22:35:52.405Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
+[2J[3J[H[[90m5:36:31 PM[0m] File change detected. Starting incremental compilation...
+
+[[90m5:36:31 PM[0m] Found 0 errors. Watching for file changes.
+
+[2024-10-09T22:36:32.212Z] [LOG] [Bootstrap] [NestFactory] Starting Nest application...
+[2024-10-09T22:36:32.225Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-10-09T22:36:32.225Z] [LOG] [Bootstrap] [InstanceLoader] AppModule dependencies initialized
+[2024-10-09T22:36:32.248Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmCoreModule dependencies initialized
+[2024-10-09T22:36:32.248Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-10-09T22:36:32.248Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-10-09T22:36:32.248Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-10-09T22:36:32.248Z] [LOG] [Bootstrap] [InstanceLoader] TypeOrmModule dependencies initialized
+[2024-10-09T22:36:32.249Z] [LOG] [Bootstrap] [InstanceLoader] YoutubePlaylistModule dependencies initialized
+[2024-10-09T22:36:32.249Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeChannelsModule dependencies initialized
+[2024-10-09T22:36:32.249Z] [LOG] [Bootstrap] [InstanceLoader] YoutubeVideosModule dependencies initialized
+[2024-10-09T22:36:32.249Z] [LOG] [Bootstrap] [InstanceLoader] VideoTimelineModule dependencies initialized
+[2024-10-09T22:36:32.252Z] [LOG] [Bootstrap] [RoutesResolver] AppController {/}:
+[2024-10-09T22:36:32.253Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/, GET} route
+[2024-10-09T22:36:32.253Z] [LOG] [Bootstrap] [RoutesResolver] YoutubePlaylistController {/youtube-playlists}:
+[2024-10-09T22:36:32.254Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists, POST} route
+[2024-10-09T22:36:32.254Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/:userId, GET} route
+[2024-10-09T22:36:32.254Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-playlists/options/:channelId, GET} route
+[2024-10-09T22:36:32.254Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeChannelsController {/youtube-channels}:
+[2024-10-09T22:36:32.254Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels, POST} route
+[2024-10-09T22:36:32.254Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels/options/:userId, GET} route
+[2024-10-09T22:36:32.255Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-channels/list/:userId, GET} route
+[2024-10-09T22:36:32.255Z] [LOG] [Bootstrap] [RoutesResolver] YoutubeVideosController {/youtube-videos}:
+[2024-10-09T22:36:32.255Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos, POST} route
+[2024-10-09T22:36:32.255Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos/:userId, GET} route
+[2024-10-09T22:36:32.255Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/youtube-videos/options/:playlistId, GET} route
+[2024-10-09T22:36:32.255Z] [LOG] [Bootstrap] [RoutesResolver] VideoTimelineController {/video-timeline}:
+[2024-10-09T22:36:32.255Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/video-timeline, POST} route
+[2024-10-09T22:36:32.256Z] [LOG] [Bootstrap] [RouterExplorer] Mapped {/video-timeline/:userId, GET} route
+[2024-10-09T22:36:32.257Z] [LOG] [Bootstrap] [NestApplication] Nest application successfully started
