@@ -34,32 +34,11 @@ export class YoutubeVideosService {
   }
 
   async getVideosByPlaylistId(playlistId: string): Promise<YoutubeVideo[]> {
-    try {
-      const response = await this.youtube.playlistItems.list({
-        part: ['snippet'],
-        playlistId: playlistId,
-        maxResults: 50,
-      });
-
-      if (response.data.items && response.data.items.length > 0) {
-        let videos: YoutubeVideo[] = [];
-        response.data.items.map(async item => (
-          videos.push(await this.saveVideo({
-            videoId: item.snippet.resourceId.videoId,
-            title: item.snippet.title,
-            description: item.snippet.description,
-            userId: '', // You might want to set this based on your application logic
-            channelId: item.snippet.channelId,
-            playlistId: playlistId,
-          }))
-        ));
-      } else {
-        return [];
-      }
-    } catch (error) {
-      console.error('Error fetching YouTube playlist videos:', error);
-      throw new Error('Failed to fetch YouTube playlist videos');
+    const videosInDatabase = await this.getVideosFromDatabase(playlistId);
+    if (videosInDatabase.length > 0) {
+      return videosInDatabase;
     }
+    return await this.fetchAndSaveVideosFromPlaylist(playlistId);
   }
 
   async fetchYoutubeVideoData(videoId: string): Promise<Partial<YoutubeVideo>> {
@@ -83,6 +62,47 @@ export class YoutubeVideosService {
     } catch (error) {
       console.error('Error fetching YouTube video data:', error);
       throw new Error('Failed to fetch YouTube video data');
+    }
+  }
+
+  // New method to get videos from database by playlistId
+  async getVideosFromDatabase(playlistId: string): Promise<YoutubeVideo[]> {
+    return await this.youtubeVideoRepository.find({ where: { playlistId } });
+  }
+
+  // New method to fetch videos from YouTube and save to database if they don't exist
+  async fetchAndSaveVideosFromPlaylist(playlistId: string): Promise<YoutubeVideo[]> {
+    try {
+      const response = await this.youtube.playlistItems.list({
+        part: ['snippet'],
+        playlistId: playlistId,
+        maxResults: 50,
+      });
+
+      if (response.data.items && response.data.items.length > 0) {
+        const videos: YoutubeVideo[] = [];
+        for (const item of response.data.items) {
+          const videoId = item.snippet.resourceId.videoId;
+          let video = await this.getVideoById(videoId);
+          if (!video) {
+            video = await this.saveVideo({
+              videoId: videoId,
+              title: item.snippet.title,
+              description: item.snippet.description,
+              userId: '', // You might want to set this based on your application logic
+              channelId: item.snippet.channelId,
+              playlistId: playlistId,
+            });
+          }
+          videos.push(video);
+        }
+        return videos;
+      } else {
+        return [];
+      }
+    } catch (error) {
+      console.error('Error fetching YouTube playlist videos:', error);
+      throw new Error('Failed to fetch YouTube playlist videos');
     }
   }
 }

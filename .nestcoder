@@ -272,6 +272,156 @@ export function dot(a: V3, b: V3): number {
 
 You will now be given the actual INPUT you must work with.
 
+<FILE path="/home/travis/Projects/dejavideo/src/youtube-videos/youtube-video.entity.ts">
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+
+@Entity()
+export class YoutubeVideo {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  videoId: string;
+
+  @Column()
+  title: string;
+
+  @Column({ nullable: true })
+  description: string;
+
+  @Column()
+  userId: string;
+
+  @Column()
+  channelId: string;
+
+  @Column({ nullable: true })
+  playlistId: string;
+}
+</FILE>
+<FILE path="/home/travis/Projects/dejavideo/src/youtube-videos/youtube-videos.module.ts">
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { YoutubeVideo } from './youtube-video.entity';
+import { YoutubeVideosService } from './youtube-videos.service';
+import { YoutubeVideosController } from './youtube-videos.controller';
+
+@Module({
+  imports: [TypeOrmModule.forFeature([YoutubeVideo])],
+  providers: [YoutubeVideosService],
+  controllers: [YoutubeVideosController],
+  exports: [YoutubeVideosService],
+})
+export class YoutubeVideosModule {}
+</FILE>
+<FILE path="/home/travis/Projects/dejavideo/src/youtube-videos/youtube-videos.controller.ts">
+import { Controller, Post, Body, Get, Param, Render } from '@nestjs/common';
+import { YoutubeVideosService } from './youtube-videos.service';
+import { YoutubeVideo } from './youtube-video.entity';
+
+@Controller('youtube-videos')
+export class YoutubeVideosController {
+  constructor(private readonly youtubeVideosService: YoutubeVideosService) {}
+
+  @Post()
+  async createVideo(@Body() videoData: Partial<YoutubeVideo>): Promise<YoutubeVideo> {
+    return this.youtubeVideosService.saveVideo(videoData);
+  }
+
+  @Get(':userId')
+  async getVideosByUserId(@Param('userId') userId: string): Promise<YoutubeVideo[]> {
+    return this.youtubeVideosService.getVideosByUserId(userId);
+  }
+
+  @Get('options/:playlistId')
+  @Render('partials/video-options')
+  async getVideoOptions(@Param('playlistId') playlistId: string): Promise<{ videos: YoutubeVideo[] }> {
+    const videos = await this.youtubeVideosService.getVideosByPlaylistId(playlistId);
+    return { videos };
+  }
+}
+</FILE>
+<FILE path="/home/travis/Projects/dejavideo/src/youtube-playlist/youtube-playlist.service.ts">
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { YoutubePlaylist } from './youtube-playlist.entity';
+import { google, youtube_v3 } from 'googleapis';
+
+@Injectable()
+export class YoutubePlaylistService {
+  private youtube: youtube_v3.Youtube;
+
+  constructor(
+    @InjectRepository(YoutubePlaylist)
+    private youtubePlaylistRepository: Repository<YoutubePlaylist>,
+  ) {
+    const auth = new google.auth.GoogleAuth({
+      keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+      scopes: ['https://www.googleapis.com/auth/youtube.readonly'],
+    });
+
+    this.youtube = google.youtube({ version: 'v3', auth });
+  }
+
+  async savePlaylist(playlistData: Partial<YoutubePlaylist>): Promise<YoutubePlaylist> {
+    const playlist = this.youtubePlaylistRepository.create(playlistData);
+    return await this.youtubePlaylistRepository.save(playlist);
+  }
+
+  async getPlaylistsByUserId(userId: string): Promise<YoutubePlaylist[]> {
+    return await this.youtubePlaylistRepository.find({ where: { userId } });
+  }
+
+  async getPlaylistsFromDatabase(channelId: string): Promise<YoutubePlaylist[]> {
+    let res = await this.youtubePlaylistRepository.find({ where: { userId: channelId } });
+
+    // console.log('res', res);
+    return res;
+  }
+
+  async fetchAndSavePlaylistsFromYoutube(channelId: string, userId: string): Promise<YoutubePlaylist[]> {
+    try {
+      const response = await this.youtube.playlists.list({
+        part: ['snippet'],
+        channelId: channelId,
+        maxResults: 50,
+      });
+
+      if (response.data.items && response.data.items.length > 0) {
+        const playlists: YoutubePlaylist[] = [];
+        for (const playlist of response.data.items) {
+          let existingPlaylist = await this.youtubePlaylistRepository.findOne({ where: { playlistId: playlist.id } });
+          if (!existingPlaylist) {
+            existingPlaylist = await this.savePlaylist({
+              playlistId: playlist.id,
+              title: playlist.snippet.title,
+              description: playlist.snippet.description,
+              userId: userId,
+            });
+          }
+          playlists.push(existingPlaylist);
+          // console.log('existingPlaylist', existingPlaylist);
+        }
+        return playlists;
+      } else {
+        return [];
+      }
+    } catch (error) {
+      console.error('Error fetching YouTube playlists:', error);
+      throw new Error('Failed to fetch YouTube playlists');
+    }
+  }
+
+  async getPlaylistsByChannelId(channelId: string, userId: string): Promise<YoutubePlaylist[]> {
+    let playlists = await this.getPlaylistsFromDatabase(channelId);
+    if (playlists.length === 0) {
+      playlists = await this.fetchAndSavePlaylistsFromYoutube(channelId, userId);
+    }
+    return playlists;
+  }
+}
+</FILE>
 <FILE path="/home/travis/Projects/dejavideo/src/youtube-playlist/youtube-playlist.entity.ts">
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
@@ -293,144 +443,66 @@ export class YoutubePlaylist {
   userId: string;
 }
 </FILE>
-<FILE path="/home/travis/Projects/dejavideo/src/youtube-playlist/youtube-playlist.module.ts">
+<FILE path="/home/travis/Projects/dejavideo/src/app.module.ts">
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { YoutubePlaylist } from './youtube-playlist.entity';
-import { YoutubePlaylistService } from './youtube-playlist.service';
-import { YoutubePlaylistController } from './youtube-playlist.controller';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { YoutubePlaylistModule } from './youtube-playlist/youtube-playlist.module';
+import { YoutubeChannelsModule } from './youtube-channels/youtube-channels.module';
+import { YoutubeVideosModule } from './youtube-videos/youtube-videos.module';
+import { VideoTimelineModule } from './video-timeline/video-timeline.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([YoutubePlaylist])],
-  providers: [YoutubePlaylistService],
-  controllers: [YoutubePlaylistController],
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'sqlite',
+      database: 'data/dejavideo.sqlite',
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: true,
+    }),
+    YoutubePlaylistModule,
+    YoutubeChannelsModule,
+    YoutubeVideosModule,
+    VideoTimelineModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService],
 })
-export class YoutubePlaylistModule {}
+export class AppModule {}
 </FILE>
-<FILE path="/home/travis/Projects/dejavideo/src/youtube-playlist/youtube-playlist.controller.ts">
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
-import { YoutubePlaylistService } from './youtube-playlist.service';
-import { YoutubePlaylist } from './youtube-playlist.entity';
+<FILE path="/home/travis/Projects/dejavideo/src/main.ts">
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import * as cookieParser from 'cookie-parser';
+import { CustomLogger } from './logger/custom-logger';
+import { resolve } from 'path';
+import * as dotenv from 'dotenv';
 
-@Controller('youtube-playlists')
-export class YoutubePlaylistController {
-  constructor(private readonly youtubePlaylistService: YoutubePlaylistService) {}
+// Load environment variables from .env file
+dotenv.config();
 
-  @Post()
-  async createPlaylist(@Body() playlistData: Partial<YoutubePlaylist>): Promise<YoutubePlaylist> {
-    return this.youtubePlaylistService.savePlaylist(playlistData);
-  }
+async function bootstrap(logger: CustomLogger) {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, { logger });
 
-  @Get(':userId')
-  async getPlaylistsByUserId(@Param('userId') userId: string): Promise<YoutubePlaylist[]> {
-    return this.youtubePlaylistService.getPlaylistsByUserId(userId);
-  }
+  app.useStaticAssets(resolve('./src/public'));
+  app.setBaseViewsDir(resolve('./src/views'));
+  app.setViewEngine('ejs');
 
-  @Get('options/:channelId')
-  async getPlaylistOptions(@Param('channelId') channelId: string): Promise<YoutubePlaylist[]> {
-    return this.youtubePlaylistService.getPlaylistsByChannelId(channelId);
-  }
+  app.use(cookieParser());
+
+  // so browsers can use api
+  app.enableCors({
+    origin: '*',
+  });
+  
+  await app.listen(3000);
 }
-</FILE>
-<FILE path="/home/travis/Projects/dejavideo/src/youtube-channels/youtube-channel.entity.ts">
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Entity()
-export class YoutubeChannel {
-  @PrimaryGeneratedColumn()
-  id: number;
+const logger = new CustomLogger('Bootstrap');
 
-  @Column()
-  channelId: string;
-
-  @Column()
-  title: string;
-
-  @Column({ nullable: true })
-  description: string;
-
-  @Column()
-  userId: string;
-}
-</FILE>
-<FILE path="/home/travis/Projects/dejavideo/src/youtube-channels/youtube-channels.service.ts">
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { YoutubeChannel } from './youtube-channel.entity';
-import { google, youtube_v3 } from 'googleapis';
-
-@Injectable()
-export class YoutubeChannelsService {
-  private youtube: youtube_v3.Youtube;
-
-  constructor(
-    @InjectRepository(YoutubeChannel)
-    private youtubeChannelRepository: Repository<YoutubeChannel>,
-  ) {
-    const auth = new google.auth.GoogleAuth({
-      keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
-      scopes: ['https://www.googleapis.com/auth/youtube.readonly'],
-    });
-
-    this.youtube = google.youtube({ version: 'v3', auth });
-  }
-
-  async saveChannel(channelData: Partial<YoutubeChannel>): Promise<YoutubeChannel> {
-    if (!channelData.title) {
-      if (channelData.channelId) {
-        try {
-          const fetchedData = await this.fetchYoutubeChannelData(channelData.channelId);
-          channelData.title = fetchedData.title;
-        } catch (error) {
-          if (error instanceof NotFoundException) {
-            throw new BadRequestException('Channel not found');
-          }
-          throw error;
-        }
-      } else {
-        throw new BadRequestException('Channel title or channelId is required');
-      }
-    }
-
-    if (!channelData.title) {
-      throw new BadRequestException('Failed to fetch channel title');
-    }
-
-    const channel = this.youtubeChannelRepository.create(channelData);
-    return await this.youtubeChannelRepository.save(channel);
-  }
-
-  async getChannelsByUserId(userId: string): Promise<YoutubeChannel[]> {
-    return await this.youtubeChannelRepository.find({ where: { userId } });
-  }
-
-  async fetchYoutubeChannelData(channelId: string): Promise<Partial<YoutubeChannel>> {
-    try {
-      const response = await this.youtube.channels.list({
-        part: ['snippet'],
-        id: [channelId],
-      });
-
-      if (response.data.items && response.data.items.length > 0) {
-        const channel = response.data.items[0];
-        return {
-          channelId: channel.id,
-          title: channel.snippet.title,
-          description: channel.snippet.description,
-        };
-      } else {
-        throw new NotFoundException('Channel not found');
-      }
-    } catch (error) {
-      console.error('Error fetching YouTube channel data:', error);
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw new Error('Failed to fetch YouTube channel data');
-    }
-  }
-}
+bootstrap(logger);
 </FILE>
 <FILE path="/home/travis/Projects/dejavideo/src/logger/custom-logger.ts">
 import { ConsoleLogger, Injectable, Inject } from '@nestjs/common';
@@ -501,34 +573,35 @@ export class CustomLogger extends ConsoleLogger {
   }
 }
 </FILE>
-<FILE path="/home/travis/Projects/dejavideo/src/youtube-videos/youtube-video.entity.ts">
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+<FILE path="/home/travis/Projects/dejavideo/.eslintrc.js">
+module.exports = {
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    project: 'tsconfig.json',
+    tsconfigRootDir: __dirname,
+    sourceType: 'module',
+  },
+  plugins: ['@typescript-eslint/eslint-plugin'],
+  extends: [
+    'plugin:@typescript-eslint/recommended',
+    'plugin:prettier/recommended',
+  ],
+  root: true,
+  env: {
+    node: true,
+    jest: true,
+  },
+  ignorePatterns: ['.eslintrc.js'],
+  rules: {
+    '@typescript-eslint/interface-name-prefix': 'off',
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
+  },
+};
 
-@Entity()
-export class YoutubeVideo {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
-  videoId: string;
-
-  @Column()
-  title: string;
-
-  @Column({ nullable: true })
-  description: string;
-
-  @Column()
-  userId: string;
-
-  @Column()
-  channelId: string;
-
-  @Column({ nullable: true })
-  playlistId: string;
-}
 </FILE>
-<FILE path="/home/travis/Projects/dejavideo/src/youtube-videos/youtube-videos.service.ts">
+<FILE path="src/youtube-videos/youtube-videos.service.ts" TARGET>
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -574,7 +647,7 @@ export class YoutubeVideosService {
 
       if (response.data.items && response.data.items.length > 0) {
         let videos: YoutubeVideo[] = [];
-        response.data.items.map(async item => (
+        for (const item of response.data.items) {
           videos.push(await this.saveVideo({
             videoId: item.snippet.resourceId.videoId,
             title: item.snippet.title,
@@ -582,8 +655,9 @@ export class YoutubeVideosService {
             userId: '', // You might want to set this based on your application logic
             channelId: item.snippet.channelId,
             playlistId: playlistId,
-          }))
-        ));
+          }));
+        }
+        return videos;
       } else {
         return [];
       }
@@ -616,153 +690,37 @@ export class YoutubeVideosService {
       throw new Error('Failed to fetch YouTube video data');
     }
   }
-}
-</FILE>
-<FILE path="/home/travis/Projects/dejavideo/src/app.module.ts">
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { YoutubePlaylistModule } from './youtube-playlist/youtube-playlist.module';
-import { YoutubeChannelsModule } from './youtube-channels/youtube-channels.module';
-import { YoutubeVideosModule } from './youtube-videos/youtube-videos.module';
-import { VideoTimelineModule } from './video-timeline/video-timeline.module';
 
-@Module({
-  imports: [
-    TypeOrmModule.forRoot({
-      type: 'sqlite',
-      database: 'data/dejavideo.sqlite',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true,
-    }),
-    YoutubePlaylistModule,
-    YoutubeChannelsModule,
-    YoutubeVideosModule,
-    VideoTimelineModule,
-  ],
-  controllers: [AppController],
-  providers: [AppService],
-})
-export class AppModule {}
-</FILE>
-<FILE path="/home/travis/Projects/dejavideo/src/main.ts">
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { NestExpressApplication } from '@nestjs/platform-express';
-import * as cookieParser from 'cookie-parser';
-import { CustomLogger } from './logger/custom-logger';
-import { resolve } from 'path';
-import * as dotenv from 'dotenv';
-
-// Load environment variables from .env file
-dotenv.config();
-
-async function bootstrap(logger: CustomLogger) {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, { logger });
-
-  app.useStaticAssets(resolve('./src/public'));
-  app.setBaseViewsDir(resolve('./src/views'));
-  app.setViewEngine('ejs');
-
-  app.use(cookieParser());
-
-  // so browsers can use api
-  app.enableCors({
-    origin: '*',
-  });
-  
-  await app.listen(3000);
-}
-
-const logger = new CustomLogger('Bootstrap');
-
-bootstrap(logger);
-</FILE>
-<FILE path="src/youtube-playlist/youtube-playlist.service.ts" TARGET>
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { YoutubePlaylist } from './youtube-playlist.entity';
-import { google, youtube_v3 } from 'googleapis';
-
-@Injectable()
-export class YoutubePlaylistService {
-  private youtube: youtube_v3.Youtube;
-
-  constructor(
-    @InjectRepository(YoutubePlaylist)
-    private youtubePlaylistRepository: Repository<YoutubePlaylist>,
-  ) {
-    const auth = new google.auth.GoogleAuth({
-      keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
-      scopes: ['https://www.googleapis.com/auth/youtube.readonly'],
-    });
-
-    this.youtube = google.youtube({ version: 'v3', auth });
+  // New method to get videos from database
+  async getVideosFromDatabase(videoIds: string[]): Promise<YoutubeVideo[]> {
+    return await this.youtubeVideoRepository.findByIds(videoIds);
   }
 
-  async savePlaylist(playlistData: Partial<YoutubePlaylist>): Promise<YoutubePlaylist> {
-    const playlist = this.youtubePlaylistRepository.create(playlistData);
-    return await this.youtubePlaylistRepository.save(playlist);
-  }
+  // New method to fetch videos from YouTube and save to database if they don't exist
+  async fetchAndSaveVideos(videoIds: string[], userId: string): Promise<YoutubeVideo[]> {
+    const existingVideos = await this.getVideosFromDatabase(videoIds);
+    const existingVideoIds = existingVideos.map(video => video.videoId);
+    const missingVideoIds = videoIds.filter(id => !existingVideoIds.includes(id));
 
-  async getPlaylistsByUserId(userId: string): Promise<YoutubePlaylist[]> {
-    return await this.youtubePlaylistRepository.find({ where: { userId } });
-  }
+    const newVideos: YoutubeVideo[] = [];
 
-  async getPlaylistsByChannelId(channelId: string): Promise<YoutubePlaylist[]> {
-    try {
-      const response = await this.youtube.playlists.list({
-        part: ['snippet'],
-        channelId: channelId,
-        maxResults: 50,
-      });
-
-      if (response.data.items && response.data.items.length > 0) {
-        const playlists: YoutubePlaylist[] = [];
-        response.data.items.map(async playlist => 
-          playlists.push(await this.savePlaylist({
-            playlistId: playlist.id,
-            title: playlist.snippet.title,
-            description: playlist.snippet.description,
-            userId: '', // You might want to set this based on your application logic
-          }))
-        );
-        return playlists;
-      } else {
-        return [];
+    for (const videoId of missingVideoIds) {
+      try {
+        const videoData = await this.fetchYoutubeVideoData(videoId);
+        const newVideo = await this.saveVideo({
+          ...videoData,
+          userId,
+        });
+        newVideos.push(newVideo);
+      } catch (error) {
+        console.error(`Error fetching and saving video ${videoId}:`, error);
       }
-    } catch (error) {
-      console.error('Error fetching YouTube playlists:', error);
-      throw new Error('Failed to fetch YouTube playlists');
     }
-  }
 
-  async fetchYoutubePlaylistData(playlistId: string): Promise<Partial<YoutubePlaylist>> {
-    try {
-      const response = await this.youtube.playlists.list({
-        part: ['snippet'],
-        id: [playlistId],
-      });
-
-      if (response.data.items && response.data.items.length > 0) {
-        const playlist = response.data.items[0];
-        return {
-          playlistId: playlist.id,
-          title: playlist.snippet.title,
-          description: playlist.snippet.description,
-        };
-      } else {
-        throw new Error('Playlist not found');
-      }
-    } catch (error) {
-      console.error('Error fetching YouTube playlist data:', error);
-      throw new Error('Failed to fetch YouTube playlist data');
-    }
+    return [...existingVideos, ...newVideos];
   }
 }
 </FILE>
 <REQUEST>
-there should be a method to get playlists from database and a method to fetch playlists from youtube and put them into database if they do not exist
+there should be a method to get videos from database and a method to fetch videos from youtube and put them into database if they do not exist; should fetch videos from playlistId.
 </REQUEST>

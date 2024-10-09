@@ -19,7 +19,8 @@ export class YoutubeVideosController {
   @Get('options/:playlistId')
   @Render('partials/video-options')
   async getVideoOptions(@Param('playlistId') playlistId: string): Promise<{ videos: YoutubeVideo[] }> {
-    const videos = await this.youtubeVideosService.getVideosByPlaylistId(playlistId);
+    await this.youtubeVideosService.fetchAndSaveVideosFromPlaylist(playlistId);
+    const videos = await this.youtubeVideosService.getVideosFromDatabase(playlistId);
     return { videos };
   }
 }

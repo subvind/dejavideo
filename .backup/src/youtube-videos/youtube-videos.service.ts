@@ -33,6 +33,36 @@ export class YoutubeVideosService {
     return await this.youtubeVideoRepository.findOne({ where: { videoId } });
   }
 
+  async getVideosByPlaylistId(playlistId: string): Promise<YoutubeVideo[]> {
+    try {
+      const response = await this.youtube.playlistItems.list({
+        part: ['snippet'],
+        playlistId: playlistId,
+        maxResults: 50,
+      });
+
+      if (response.data.items && response.data.items.length > 0) {
+        let videos: YoutubeVideo[] = [];
+        for (const item of response.data.items) {
+          videos.push(await this.saveVideo({
+            videoId: item.snippet.resourceId.videoId,
+            title: item.snippet.title,
+            description: item.snippet.description,
+            userId: '', // You might want to set this based on your application logic
+            channelId: item.snippet.channelId,
+            playlistId: playlistId,
+          }));
+        }
+        return videos;
+      } else {
+        return [];
+      }
+    } catch (error) {
+      console.error('Error fetching YouTube playlist videos:', error);
+      throw new Error('Failed to fetch YouTube playlist videos');
+    }
+  }
+
   async fetchYoutubeVideoData(videoId: string): Promise<Partial<YoutubeVideo>> {
     try {
       const response = await this.youtube.videos.list({
@@ -55,5 +85,34 @@ export class YoutubeVideosService {
       console.error('Error fetching YouTube video data:', error);
       throw new Error('Failed to fetch YouTube video data');
     }
+  }
+
+  // New method to get videos from database
+  async getVideosFromDatabase(videoIds: string[]): Promise<YoutubeVideo[]> {
+    return await this.youtubeVideoRepository.findByIds(videoIds);
+  }
+
+  // New method to fetch videos from YouTube and save to database if they don't exist
+  async fetchAndSaveVideos(videoIds: string[], userId: string): Promise<YoutubeVideo[]> {
+    const existingVideos = await this.getVideosFromDatabase(videoIds);
+    const existingVideoIds = existingVideos.map(video => video.videoId);
+    const missingVideoIds = videoIds.filter(id => !existingVideoIds.includes(id));
+
+    const newVideos: YoutubeVideo[] = [];
+
+    for (const videoId of missingVideoIds) {
+      try {
+        const videoData = await this.fetchYoutubeVideoData(videoId);
+        const newVideo = await this.saveVideo({
+          ...videoData,
+          userId,
+        });
+        newVideos.push(newVideo);
+      } catch (error) {
+        console.error(`Error fetching and saving video ${videoId}:`, error);
+      }
+    }
+
+    return [...existingVideos, ...newVideos];
   }
 }
