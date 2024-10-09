@@ -29,6 +29,10 @@ export class YoutubeVideosService {
     return await this.youtubeVideoRepository.find({ where: { userId } });
   }
 
+  async getVideoById(videoId: string): Promise<YoutubeVideo> {
+    return await this.youtubeVideoRepository.findOne({ where: { videoId } });
+  }
+
   async fetchYoutubeVideoData(videoId: string): Promise<Partial<YoutubeVideo>> {
     try {
       const response = await this.youtube.videos.list({

@@ -15,9 +15,4 @@ export class YoutubeVideosController {
   async getVideosByUserId(@Param('userId') userId: string): Promise<YoutubeVideo[]> {
     return this.youtubeVideosService.getVideosByUserId(userId);
   }
-
-  @Get('options/:playlistId')
-  async getVideoOptions(@Param('playlistId') playlistId: string): Promise<YoutubeVideo[]> {
-    return this.youtubeVideosService.getVideosByPlaylistId(playlistId);
-  }
 }

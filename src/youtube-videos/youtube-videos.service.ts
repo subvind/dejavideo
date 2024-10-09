@@ -33,6 +33,35 @@ export class YoutubeVideosService {
     return await this.youtubeVideoRepository.findOne({ where: { videoId } });
   }
 
+  async getVideosByPlaylistId(playlistId: string): Promise<YoutubeVideo[]> {
+    try {
+      const response = await this.youtube.playlistItems.list({
+        part: ['snippet'],
+        playlistId: playlistId,
+        maxResults: 50,
+      });
+
+      if (response.data.items && response.data.items.length > 0) {
+        let videos: YoutubeVideo[] = [];
+        response.data.items.map(async item => (
+          videos.push(await this.saveVideo({
+            videoId: item.snippet.resourceId.videoId,
+            title: item.snippet.title,
+            description: item.snippet.description,
+            userId: '', // You might want to set this based on your application logic
+            channelId: item.snippet.channelId,
+            playlistId: playlistId,
+          }))
+        ));
+      } else {
+        return [];
+      }
+    } catch (error) {
+      console.error('Error fetching YouTube playlist videos:', error);
+      throw new Error('Failed to fetch YouTube playlist videos');
+    }
+  }
+
   async fetchYoutubeVideoData(videoId: string): Promise<Partial<YoutubeVideo>> {
     try {
       const response = await this.youtube.videos.list({

@@ -15,9 +15,4 @@ export class YoutubePlaylistController {
   async getPlaylistsByUserId(@Param('userId') userId: string): Promise<YoutubePlaylist[]> {
     return this.youtubePlaylistService.getPlaylistsByUserId(userId);
   }
-
-  @Get('options/:channelId')
-  async getPlaylistOptions(@Param('channelId') channelId: string): Promise<YoutubePlaylist[]> {
-    return this.youtubePlaylistService.getPlaylistsByChannelId(channelId);
-  }
 }

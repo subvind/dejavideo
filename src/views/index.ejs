@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DJ Video Queue</title>
+  <title>DeJa Video</title>
   <script src="https://unpkg.com/htmx.org@1.9.2"></script>
   <%- include('style'); %> 
 </head>
@@ -17,7 +17,7 @@
         <%- include('partials/channel-options', { channels: [] }); %>
       </select>
       
-      <select id="playlist-select" name="playlistId" hx-get="/youtube-playlists" hx-target="#video-select" hx-trigger="change">
+      <select id="playlist-select" name="playlistId">
         <option value="">Select a Playlist</option>
       </select>
       
@@ -59,6 +59,18 @@
 
     // Load initial added channels
     htmx.ajax('GET', '/youtube-channels/list/dj123', {target: '#channel-list', swap: 'innerHTML'});
+
+    // Handle channel selection change
+    document.querySelector('select[name="channelId"]').addEventListener('change', function() {
+      const channelId = this.value;
+      htmx.ajax('GET', `/youtube-playlists/options/${channelId}`, {target: '#playlist-select', swap: 'innerHTML'});
+    });
+
+    // Handle playlist selection change
+    document.querySelector('#playlist-select').addEventListener('change', function() {
+      const playlistId = this.value;
+      htmx.ajax('GET', `/youtube-videos/options/${playlistId}`, {target: '#video-select', swap: 'innerHTML'});
+    });
   </script>
 </body>
 </html>

@@ -29,6 +29,34 @@ export class YoutubePlaylistService {
     return await this.youtubePlaylistRepository.find({ where: { userId } });
   }
 
+  async getPlaylistsByChannelId(channelId: string): Promise<YoutubePlaylist[]> {
+    try {
+      const response = await this.youtube.playlists.list({
+        part: ['snippet'],
+        channelId: channelId,
+        maxResults: 50,
+      });
+
+      if (response.data.items && response.data.items.length > 0) {
+        const playlists: YoutubePlaylist[] = [];
+        response.data.items.map(async playlist => 
+          playlists.push(await this.savePlaylist({
+            playlistId: playlist.id,
+            title: playlist.snippet.title,
+            description: playlist.snippet.description,
+            userId: '', // You might want to set this based on your application logic
+          }))
+        );
+        return playlists;
+      } else {
+        return [];
+      }
+    } catch (error) {
+      console.error('Error fetching YouTube playlists:', error);
+      throw new Error('Failed to fetch YouTube playlists');
+    }
+  }
+
   async fetchYoutubePlaylistData(playlistId: string): Promise<Partial<YoutubePlaylist>> {
     try {
       const response = await this.youtube.playlists.list({
