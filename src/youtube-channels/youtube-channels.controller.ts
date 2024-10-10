@@ -12,14 +12,14 @@ export class YoutubeChannelsController {
   }
 
   @Get('options/:userId')
-  @Render('partials/channel-options')
+  @Render('diskJockeys/partials/channel-options')
   async getChannelOptions(@Param('userId') userId: string): Promise<{ channels: YoutubeChannel[] }> {
     const channels = await this.youtubeChannelsService.getChannelsByUserId(userId);
     return { channels };
   }
 
   @Get('list/:userId')
-  @Render('partials/channel-list')
+  @Render('diskJockeys/partials/channel-list')
   async getChannelList(@Param('userId') userId: string): Promise<{ channels: YoutubeChannel[] }> {
     const channels = await this.youtubeChannelsService.getChannelsByUserId(userId);
     return { channels };

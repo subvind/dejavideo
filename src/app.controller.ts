@@ -12,4 +12,26 @@ export class AppController {
     const hello = this.appService.getHello();
     return { message: `isTrav & subVind: ${hello}` };
   }
+
+  @Get('diskJockeys/timeline/:diskJockeyId')
+  @Render('diskJockeys/timeline')
+  async timeline(
+    @Req() req: Request,
+    @Param('diskJockeyId') diskJockeyId: string
+  ) {
+    return {
+      diskJockeyId
+    };
+  }
+
+  @Get('diskJockeys/queue/:diskJockeyId')
+  @Render('diskJockeys/queue')
+  async queue(
+    @Req() req: Request,
+    @Param('diskJockeyId') diskJockeyId: string
+  ) {
+    return {
+      diskJockeyId
+    };
+  }
 }

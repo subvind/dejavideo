@@ -41,6 +41,11 @@ export class YoutubeChannelsService {
       throw new BadRequestException('Failed to fetch channel title');
     }
 
+    const channelAlreadyExists = await this.youtubeChannelRepository.find({ where: { channelId: channelData.channelId } })
+    if (channelAlreadyExists.length > 0) {
+      throw new BadRequestException('Channel already exists in the database.');
+    }
+
     const channel = this.youtubeChannelRepository.create(channelData);
     return await this.youtubeChannelRepository.save(channel);
   }

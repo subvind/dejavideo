@@ -17,7 +17,7 @@ export class YoutubePlaylistController {
   }
 
   @Get('options/:channelId')
-  @Render('partials/playlist-options')
+  @Render('diskJockeys/partials/playlist-options')
   async getPlaylistOptions(@Param('channelId') channelId: string): Promise<{ playlists: YoutubePlaylist[] }> {
     await this.youtubePlaylistService.fetchAndSavePlaylistsFromYoutube(channelId, channelId);
     const playlists = await this.youtubePlaylistService.getPlaylistsFromDatabase(channelId);
